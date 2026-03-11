@@ -1,7 +1,4 @@
-
 "use client";
-
-import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -11,16 +8,11 @@ import {
   type ForgotPasswordFormData,
 } from "@/validation/auth.validation";
 import AuthCard from "@/components/auth/AuthCard";
-import { ArrowLeft } from "@/components/icons";
+import { ArrowLeft } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<ForgotPasswordFormData>({
+  const { register, handleSubmit, formState: { errors, isSubmitting }} = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
   });
 
@@ -38,9 +30,9 @@ export default function ForgotPasswordPage() {
         <h2 className="text-lg font-bold text-gray-900">Verify Email</h2>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+          <label className="block text-base font-semibold text-gray-900 mb-1.5">
             Email
           </label>
           <input

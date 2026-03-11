@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema, type SignInFormData } from "@/validation/auth.validation";
 import AuthCard from "@/components/auth/AuthCard";
-import { Eye, EyeOff } from "@/components/icons";
+import { Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 
 export default function SignInPage() {
@@ -28,9 +29,9 @@ export default function SignInPage() {
         <p className="text-sm text-gray-400 mt-1">Sign in on your account</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+          <label className="block text-base font-semibold text-gray-900 mb-1.5">
             Email
           </label>
           <input
@@ -45,7 +46,7 @@ export default function SignInPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+          <label className="block text-base font-semibold text-gray-900 mb-1.5">
             Password
           </label>
           <div className="relative">
@@ -60,7 +61,7 @@ export default function SignInPage() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
-              {showPassword ? <Eye /> : <EyeOff />}
+              {showPassword ? <Eye size={17} /> : <EyeOff size={17} />}
             </button>
           </div>
           {errors.password && (
@@ -73,19 +74,18 @@ export default function SignInPage() {
         <div className="flex justify-end">
           <Link
             href="/auth/forgot-password"
-            className="text-sm text-red-500 hover:text-red-600 font-medium"
+            className="text-sm text-red-500 hover:text-red-600 font-medium hover:underline underline-offset-2"
           >
             Forget Password?
           </Link>
         </div>
 
-        <button
+        <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3.5 bg-linear-to-b from-[#2c4f6e] to-[#0f2336] text-white rounded-lg font-semibold text-sm hover:opacity-90 transition disabled:opacity-60 cursor-pointer"
         >
           {isSubmitting ? "Logging in..." : "Log In"}
-        </button>
+        </Button>
       </form>
     </AuthCard>
   );

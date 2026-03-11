@@ -1,28 +1,20 @@
 "use client";
-
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  verifyOtpSchema,
-  type VerifyOtpFormData,
-} from "@/validation/auth.validation";
+import { verifyOtpSchema, type VerifyOtpFormData } from "@/validation/auth.validation";
 import AuthCard from "@/components/auth/AuthCard";
-import { ArrowLeft } from "@/components/icons";
+import { ArrowLeft } from "lucide-react";
 
 export default function VerifyOtpPage() {
   const router = useRouter();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [countdown, setCountdown] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    getValues,
-    formState: { errors, isSubmitting },
-  } = useForm<VerifyOtpFormData>({
+  const { control, handleSubmit, setValue, getValues, formState: { errors, isSubmitting } } = useForm<VerifyOtpFormData>({
     resolver: zodResolver(verifyOtpSchema),
     defaultValues: { otp: "" },
   });
@@ -66,7 +58,25 @@ export default function VerifyOtpPage() {
 
   const handleResend = () => {
     console.log("Resend OTP");
+    setCountdown(60);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current!);
+          timerRef.current = null;
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
 
   return (
     <AuthCard>
@@ -85,12 +95,12 @@ export default function VerifyOtpPage() {
         identity.
       </p>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Controller
           name="otp"
           control={control}
           render={({ field }) => (
-            <div className="flex gap-3 justify-center" onPaste={handlePaste}>
+            <div className="flex gap-3 justify-between" onPaste={handlePaste}>
               {Array.from({ length: 5 }).map((_, i) => (
                 <input
                   key={i}
@@ -103,7 +113,7 @@ export default function VerifyOtpPage() {
                   value={field.value[i] || ""}
                   onChange={(e) => handleOtpChange(i, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(i, e)}
-                  className="w-12 h-14 sm:w-14 sm:h-16 text-center text-lg font-semibold border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1b3a5c]/30 focus:border-[#1b3a5c] transition"
+                  className="w-12 h-12 sm:w-15 sm:h-15 text-center text-lg font-semibold border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1b3a5c]/30 focus:border-[#1b3a5c] transition"
                 />
               ))}
             </div>
@@ -115,13 +125,19 @@ export default function VerifyOtpPage() {
 
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-400">Didn&apos;t receive the code?</span>
-          <button
-            type="button"
-            onClick={handleResend}
-            className="font-semibold text-gray-900 hover:underline cursor-pointer"
-          >
-            Resend
-          </button>
+          {countdown > 0 ? (
+            <span className="font-semibold text-gray-400">
+              Resend in {countdown}s
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={handleResend}
+              className="font-semibold text-gray-900 hover:underline cursor-pointer"
+            >
+              Resend
+            </button>
+          )}
         </div>
 
         <button

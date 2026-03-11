@@ -1,30 +1,25 @@
 "use client";
-
 import React, { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  resetPasswordSchema,
-  type ResetPasswordFormData,
-} from "@/validation/auth.validation";
+import { resetPasswordSchema, type ResetPasswordFormData, } from "@/validation/auth.validation";
 import AuthCard from "@/components/auth/AuthCard";
-import { ArrowLeft, Eye, EyeOff } from "@/components/icons";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 export default function ResetPasswordPage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<ResetPasswordFormData>({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
   });
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     console.log("Reset password:", data);
+    router.push("/auth/sign-in");
   };
 
   return (
@@ -40,10 +35,10 @@ export default function ResetPasswordPage() {
       </div>
 
       <p className="text-sm text-gray-400 mb-6">
-        Your password must be 8-10 character long.
+        Your password must be 8-10 {`character's`} long.
       </p>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-1.5">
             New Password
@@ -60,7 +55,7 @@ export default function ResetPasswordPage() {
               onClick={() => setShowNewPassword(!showNewPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
-              {showNewPassword ? <Eye /> : <EyeOff />}
+              {showNewPassword ? <Eye size={17}/> : <EyeOff size={17}/>}
             </button>
           </div>
           {errors.newPassword && (
