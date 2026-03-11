@@ -1,14 +1,21 @@
-import React from 'react'
-import AdminSidebar from './AdminSidebar'
+import React from "react";
+import AdminSidebar from "./AdminSidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import AdminTopbar from "./AdminTopbar";
+
 
 const AppWrapper = ({ children }: { children: React.ReactNode }) => {
-    return (
-        <div>
-            {/* sidebar */}
-            <AdminSidebar />
-            {children}
-        </div>
-    )
-}
+  return (
+    <SidebarProvider>
+      <AdminSidebar />
+      <SidebarInset className="flex flex-col">
+        <AdminTopbar />
+        <main className="flex-1 p-4 md:p-6 lg:p-8 bg-gray-50">
+          {children}
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  );
+};
 
-export default AppWrapper
+export default AppWrapper;
