@@ -5,7 +5,7 @@ import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "w-full py-3 bg-linear-to-b from-button-start to-button-end text-white rounded-lg font-medium text-base hover:opacity-90 transition disabled:opacity-60 cursor-pointer",
+  "w-full py-3 bg-linear-to-r from-button-start via-button-end to-button-start text-white rounded-lg font-medium text-base hover:opacity-90 transition disabled:opacity-60 cursor-pointer",
   {
     variants: {
       variant: {

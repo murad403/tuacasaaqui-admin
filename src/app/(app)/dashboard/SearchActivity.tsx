@@ -46,7 +46,7 @@ export default function SearchActivity() {
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 h-full">
-      <h2 className="text-lg font-bold text-gray-900 mb-5">Search Activity</h2>
+      <h2 className="text-lg font-medium text-title mb-5">Search Activity</h2>
       <div className="flex gap-3">
         {/* Y-axis */}
         <div

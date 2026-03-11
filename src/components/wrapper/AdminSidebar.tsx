@@ -45,12 +45,12 @@ export default function AdminSidebar() {
                     asChild
                     isActive={isActive}
                     tooltip={item.title}
-                    className={
+                    className={` text-white
                     
-                      isActive
-                        ? "bg-linear-to-r from-button-start to-button-end text-white py-3  rounded-lg hover:text-white"
-                        : "text-gray-600 hover:bg-gray-100  py-3"
-                    }
+                      ${isActive
+                        ? "bg-linear-to-r from-button-start via-button-end to-button-start py-3 rounded-lg hover:text-white"
+                        : "text-gray-600 hover:bg-gray-100  py-3"}
+                    `}
                   >
                     <Link href={item.href}>
                       <item.icon className="size-6" />
