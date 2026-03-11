@@ -10,7 +10,7 @@ const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       <AdminSidebar />
       <SidebarInset className="flex flex-col">
         <AdminTopbar />
-        <main className="flex-1 p-4 md:p-6 lg:p-8 bg-gray-50">
+        <main className="flex-1 p-4 md:p-6 bg-[#F8F9FB]">
           {children}
         </main>
       </SidebarInset>
