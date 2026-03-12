@@ -3,8 +3,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import logo from "@/assets/logo/logo.png";
-import { LayoutDashboard, Newspaper, Users, Settings, LogOut} from "lucide-react";
-import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarMenu, SidebarMenuItem, SidebarMenuButton} from "@/components/ui/sidebar";
+import { LayoutDashboard, Newspaper, Users, Settings, LogOut } from "lucide-react";
+import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
+import { useState } from "react";
+import LogoutModal from "../modal/LogoutModal";
 
 
 const navItems = [
@@ -16,7 +18,15 @@ const navItems = [
 
 
 export default function AdminSidebar() {
+
+  const [deleteModal, setDeleteModal] = useState<{
+    open: boolean;
+  }>({ open: false });
   const pathname = usePathname();
+
+  const handleLogout = () => {
+    setDeleteModal({ open: true });
+  };
 
   return (
     <Sidebar collapsible="icon" className="bg-white">
@@ -69,7 +79,8 @@ export default function AdminSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               tooltip="Sign Out"
-              className="text-red-500 hover:bg-red-50 hover:text-red-600"
+              onClick={handleLogout}
+              className="text-red-500 bg-red-100 cursor-pointer px-4 rounded-lg transition-colors duration-300 hover:bg-red-50 hover:text-red-600 py-3"
             >
               <LogOut className="size-5" />
               <span>Sign Out</span>
@@ -77,6 +88,8 @@ export default function AdminSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
+      <LogoutModal open={deleteModal.open} onOpenChange={(open) => setDeleteModal({ open })} onConfirm={() => {}} />
     </Sidebar>
   );
 }

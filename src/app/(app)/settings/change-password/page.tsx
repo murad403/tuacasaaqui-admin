@@ -3,6 +3,9 @@ import { useState } from "react";
 import { KeyRound, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { ChangePasswordFormData, changePasswordSchema } from "@/validation/auth.validation";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const inputClass = "w-full px-4 py-3 border border-gray-300 rounded-lg text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1b3a5c]/30 focus:border-[#1b3a5c] transition pr-11";
 
@@ -12,7 +15,13 @@ export default function ChangePasswordPage() {
     const toggle = (field: keyof typeof show) =>
         setShow((prev) => ({ ...prev, [field]: !prev[field] }));
 
-    
+    const { register, handleSubmit, watch, formState: { errors }} = useForm<ChangePasswordFormData>({
+        resolver: zodResolver(changePasswordSchema)
+    })
+
+    const onSubmit: SubmitHandler<ChangePasswordFormData> = (data) =>{
+        console.log(data);
+    }
 
     return (
         <div className="max-w-2xl space-y-4">
@@ -31,7 +40,7 @@ export default function ChangePasswordPage() {
                     <h2 className="font-semibold text-title">Security Settings</h2>
                 </div>
 
-                <form className="space-y-5">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                     {/* Current Password */}
                     <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-1.5">Current Password</label>
@@ -40,10 +49,15 @@ export default function ChangePasswordPage() {
                                 type={show.current ? "text" : "password"}
                                 placeholder="Enter current password"
                                 className={inputClass}
+                                {...register("current_password")}
                             />
                             <button type="button" onClick={() => toggle("current")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                 {show.current ? <Eye size={17} /> : <EyeOff size={17} />}
                             </button>
+                            {errors.current_password && (
+                                <p className="text-red-500 text-xs mt-1">{errors.current_password.message}</p>
+                            )}
+
                         </div>
                     </div>
 
@@ -55,10 +69,15 @@ export default function ChangePasswordPage() {
                                 type={show.newPass ? "text" : "password"}
                                 placeholder="Enter new password"
                                 className={inputClass}
+                                {...register("new_password")}
                             />
                             <button type="button" onClick={() => toggle("newPass")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                 {show.newPass ? <Eye size={17} /> : <EyeOff size={17} />}
                             </button>
+                            {errors.new_password && (
+                                <p className="text-red-500 text-xs mt-1">{errors.new_password.message}</p>
+                            )}
+
                         </div>
                     </div>
 
@@ -70,10 +89,14 @@ export default function ChangePasswordPage() {
                                 type={show.confirm ? "text" : "password"}
                                 placeholder="Confirm new password"
                                 className={inputClass}
+                                {...register("confirm_new_password")}
                             />
                             <button type="button" onClick={() => toggle("confirm")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                 {show.confirm ? <Eye size={17} /> : <EyeOff size={17} />}
                             </button>
+                            {errors.confirm_new_password && (
+                                <p className="text-red-500 text-xs mt-1">{errors.confirm_new_password.message}</p>
+                            )}
                         </div>
                     </div>
 

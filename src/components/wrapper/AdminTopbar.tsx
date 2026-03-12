@@ -3,6 +3,7 @@
 import { Bell } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import Link from "next/link";
 
 export default function AdminTopbar() {
   return (
@@ -19,15 +20,14 @@ export default function AdminTopbar() {
             <p className="text-sm font-semibold text-gray-900 leading-tight">
               Fernando
             </p>
-            <p className="text-xs text-gray-500 leading-tight">
-              Editor-in-Chief
-            </p>
           </div>
-          <Avatar className="size-9 bg-[#1b3a5c]">
-            <AvatarFallback className="bg-[#1b3a5c] text-white text-sm font-semibold">
-              F
-            </AvatarFallback>
-          </Avatar>
+          <Link href="/settings/personal-information">
+            <Avatar className="size-9 bg-[#1b3a5c]">
+              <AvatarFallback className="bg-[#1b3a5c] text-white text-sm font-semibold">
+                F
+              </AvatarFallback>
+            </Avatar>
+          </Link>
         </div>
       </div>
     </header>

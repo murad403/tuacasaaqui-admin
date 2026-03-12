@@ -13,8 +13,7 @@ export const verifyOtpSchema = z.object({
   otp: z.string().length(5, 'Please enter all 5 digits'),
 });
 
-export const resetPasswordSchema = z
-  .object({
+export const resetPasswordSchema = z.object({
     newPassword: z
       .string()
       .min(8, 'Password must be at least 8 characters')
@@ -26,7 +25,19 @@ export const resetPasswordSchema = z
     path: ['confirmPassword'],
   });
 
+export const changePasswordSchema = z.object({
+  current_password: z.string().min(1, 'Current password is required'),
+  new_password: z
+    .string()
+    .min(6, 'New password must be at least 6 characters'),
+    confirm_new_password: z.string().min(1, 'Please confirm your new password'),
+}).refine((data) => data.new_password === data.confirm_new_password, {
+  message: 'New passwords do not match',
+  path: ['confirm_new_password'],
+});
+
 export type SignInFormData = z.infer<typeof signInSchema>;
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export type VerifyOtpFormData = z.infer<typeof verifyOtpSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;

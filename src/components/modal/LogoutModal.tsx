@@ -1,30 +1,25 @@
 "use client";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { CircleAlert } from "lucide-react";
 
-interface DeleteArticleModalProps {
+interface LogoutModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  articleTitle: string;
   onConfirm: () => void;
 }
 
-export default function DeleteArticleModal({ open, onOpenChange, articleTitle, onConfirm}: DeleteArticleModalProps) {
+const LogoutModal = ({ open, onOpenChange, onConfirm }: LogoutModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" showCloseButton={false}>
         <DialogHeader>
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 mb-2">
-            <Trash2 className="h-6 w-6 text-red-600" />
+            <CircleAlert className="text-red-500"/>
           </div>
-          <DialogTitle className="text-center">Delete Article</DialogTitle>
-          <DialogDescription className="text-center">
-            Are you sure you want to delete{" "}
-            <span className="font-semibold text-foreground">
-              &quot;{articleTitle}&quot;
-            </span>
-            ? This action cannot be undone.
+          <DialogTitle className="text-center font-semibold text-2xl">Are you sure you want to logout ?</DialogTitle>
+          <DialogDescription className="text-center text-description text-sm">
+            You can log back in anytime to continue where you left off.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex-row justify-center gap-3 sm:justify-center">
@@ -42,10 +37,12 @@ export default function DeleteArticleModal({ open, onOpenChange, articleTitle, o
             }}
             className="min-w-25"
           >
-            Delete
+            Logout
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+
+export default LogoutModal;
