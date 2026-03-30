@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import logo from "@/assets/logo/logo.png";
-import { LayoutDashboard, Newspaper, Users, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Newspaper, Users, Settings, LogOut, BookOpen, CircleQuestionMark, MessageSquare } from "lucide-react";
 import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useState } from "react";
 import LogoutModal from "../modal/LogoutModal";
@@ -12,6 +12,9 @@ import LogoutModal from "../modal/LogoutModal";
 const navItems = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard },
   { title: "News Management", href: "/news-management", icon: Newspaper },
+  { title: "Guide", href: "/guide", icon: BookOpen },
+  { title: "FAQ", href: "/faq", icon: CircleQuestionMark },
+  { title: "Feedback", href: "/feedback", icon: MessageSquare },
   { title: "Users", href: "/users", icon: Users },
   { title: "Settings", href: "/settings", icon: Settings },
 ];

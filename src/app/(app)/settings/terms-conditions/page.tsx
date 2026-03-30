@@ -7,8 +7,8 @@ import { ArrowLeft } from "lucide-react";
 import { useGetPrivacyQuery, useUpdatePrivacyMutation } from "@/redux/features/settings/settings.api";
 import { toast } from "react-toastify";
 
-export default function PrivacyPolicyPage() {
-    const { data: pageData, isLoading } = useGetPrivacyQuery("privacy_policy");
+export default function PrivacyExplanationPage() {
+    const { data: pageData, isLoading } = useGetPrivacyQuery("terms_conditions");
     const [updatePrivacy, { isLoading: isSaving }] = useUpdatePrivacyMutation();
     const [draftContent, setDraftContent] = useState<string | null>(null);
     const [editing, setEditing] = useState(false);
@@ -23,7 +23,7 @@ export default function PrivacyPolicyPage() {
 
         try {
             await updatePrivacy({
-                pageType: "privacy_policy",
+                pageType: "terms_conditions",
                 data: {
                     content,
                     meta_title: pageData?.meta_title || "",
@@ -31,7 +31,7 @@ export default function PrivacyPolicyPage() {
                 },
             }).unwrap();
 
-            toast.success("Privacy policy updated successfully.");
+            toast.success("Terms and conditions updated successfully.");
             setEditing(false);
             setDraftContent(null);
         } catch (error: unknown) {
@@ -42,8 +42,8 @@ export default function PrivacyPolicyPage() {
                 typeof (error as { data?: { message?: string; detail?: string } }).data === "object"
                     ? (error as { data?: { message?: string; detail?: string } }).data?.message ||
                     (error as { data?: { message?: string; detail?: string } }).data?.detail ||
-                    "Failed to update privacy policy."
-                    : "Failed to update privacy policy.";
+                    "Failed to update terms and conditions."
+                    : "Failed to update terms and conditions.";
 
             toast.error(message);
         }
@@ -56,13 +56,13 @@ export default function PrivacyPolicyPage() {
                     <ArrowLeft />
                 </Link>
                 <div>
-                    <h1 className="text-2xl font-medium text-title">Privacy Policy</h1>
-                    <p className="text-description text-sm">We respect your privacy. Learn how AreaFinder collects, uses, and protects your personal data.</p>
+                    <h1 className="text-2xl font-medium text-title">Terms and Conditions</h1>
+                    <p className="text-description text-sm">Terms Of Service explanation outlines how we collect, use, and protect your personal information.</p>
                 </div>
             </div>
             <div className="bg-white rounded-xl border p-6">
-                <div className="flex items-center justify-between gap-4 mb-4">
-                    <h1 className="text-2xl md:text-3xl font-semibold text-title whitespace-nowrap">Privacy Policy</h1>
+                <div className="flex items-center justify-between mb-4 gap-4">
+                    <h1 className="text-2xl md:text-3xl font-semibold text-title whitespace-nowrap">Terms And Conditions</h1>
                     <Button
                         onClick={handleEditOrSave}
                         disabled={isSaving}
@@ -78,7 +78,7 @@ export default function PrivacyPolicyPage() {
                     <RichTextEditor content={content} onChange={setDraftContent} />
                 ) : (
                     <div
-                        className="prose prose-sm max-w-none [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:text-lg [&_h3]:font-medium [&_ul]:list-disc [&_ul]:pl-6 [&_a]:text-teal-600"
+                        className="prose prose-sm max-w-none [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:text-lg [&_h3]:font-medium [&_ul]:list-disc [&_ul]:pl-6"
                         dangerouslySetInnerHTML={{ __html: content }}
                     />
                 )}

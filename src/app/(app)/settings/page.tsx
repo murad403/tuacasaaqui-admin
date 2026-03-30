@@ -6,7 +6,7 @@ const settingLinks = [
   { id: 1, name: "Personal Information",    route: "/settings/personal-information",    icon: UserCircle,  description: "Update your name, email and profile details" },
   { id: 2, name: "Change Password",         route: "/settings/change-password",         icon: KeyRound,    description: "Set a new password for your account" },
   { id: 3, name: "Privacy Policy",          route: "/settings/privacy-policy",          icon: Shield,      description: "Review the platform's privacy policy" },
-  { id: 5, name: "Terms of Service",        route: "/settings/terms-of-service",        icon: FileText,    description: "Detailed explanation of privacy practices" },
+  { id: 5, name: "Terms and Conditions",    route: "/settings/terms-conditions",    icon: FileText,    description: "Detailed explanation of terms and conditions" },
   { id: 4, name: "Data Source Disclaimer",  route: "/settings/data-source-disclaimer",  icon: Database,    description: "Information about data sources used" },
 ]
 
