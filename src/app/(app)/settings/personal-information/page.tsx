@@ -1,11 +1,13 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { UserCircle, Bell, ArrowLeft, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useGetProfileQuery, useUpdateProfileMutation } from "@/redux/features/settings/settings.api";
+import { toast } from "react-toastify";
 
 const schema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -15,27 +17,60 @@ type FormData = z.infer<typeof schema>;
 const inputClass = "w-full px-4 py-3 border border-gray-300 rounded-lg text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1b3a5c]/30 focus:border-[#1b3a5c] transition";
 
 export default function PersonalInformationPage() {
-    const [avatar, setAvatar] = useState<string | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [notifications, setNotifications] = useState(true);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { data: profile } = useGetProfileQuery();
+    const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
 
-    const { register, handleSubmit, control, formState: { errors } } = useForm<FormData>({
+    const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormData>({
         resolver: zodResolver(schema),
-        defaultValues: { name: "Fernando" },
+        defaultValues: { name: "" },
     });
 
-    const name = useWatch({ control, name: "name" });
-    const email = "fernando@areafinder.com";
+    useEffect(() => {
+        if (!profile) return;
 
-    const onSubmit = (data: FormData) => {
-        console.log("Update profile:", { ...data, avatar });
+        reset({ name: profile.name || "" });
+    }, [profile, reset]);
+
+    const name = useWatch({ control, name: "name" });
+    const email = profile?.email || "";
+    const avatar = avatarPreview || profile?.image || null;
+
+    const onSubmit = async (data: FormData) => {
+        const formData = new FormData();
+        formData.append("name", data.name);
+
+        if (selectedImage) {
+            formData.append("image", selectedImage);
+        }
+
+        try {
+            const response = await updateProfile(formData).unwrap();
+            toast.success(response.message || "Profile updated successfully.");
+        } catch (error: unknown) {
+            const message =
+                typeof error === "object" &&
+                error !== null &&
+                "data" in error &&
+                typeof (error as { data?: { message?: string; detail?: string } }).data === "object"
+                    ? (error as { data?: { message?: string; detail?: string } }).data?.message ||
+                    (error as { data?: { message?: string; detail?: string } }).data?.detail ||
+                    "Failed to update profile."
+                    : "Failed to update profile.";
+
+            toast.error(message);
+        }
     };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setSelectedImage(file);
             const reader = new FileReader();
-            reader.onload = () => setAvatar(reader.result as string);
+            reader.onload = () => setAvatarPreview(reader.result as string);
             reader.readAsDataURL(file);
         }
     };
@@ -70,7 +105,7 @@ export default function PersonalInformationPage() {
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img src={avatar} alt="avatar" className="size-full object-cover" />
                                 ) : (
-                                    (name || "F").charAt(0).toUpperCase()
+                                    (name).charAt(0).toUpperCase()
                                 )}
                             </div>
                             <button
@@ -97,7 +132,7 @@ export default function PersonalInformationPage() {
                                     type="text"
                                     {...register("name")}
                                     className={inputClass}
-                                    placeholder="Enter your full name"
+                                    placeholder="Your name"
                                 />
                                 {errors.name && (
                                     <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
@@ -112,8 +147,8 @@ export default function PersonalInformationPage() {
                                     disabled
                                 />
                             </div>
-                            <Button type="submit" className="bg-heading hover:bg-heading/90 text-white rounded-lg px-6">
-                                Update Profile
+                            <Button type="submit" disabled={isUpdating} className="bg-heading hover:bg-heading/90 text-white rounded-lg px-6">
+                                {isUpdating ? "Updating..." : "Update Profile"}
                             </Button>
                         </div>
                     </div>

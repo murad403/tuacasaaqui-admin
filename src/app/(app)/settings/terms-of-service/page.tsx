@@ -40,13 +40,13 @@ export default function PrivacyExplanationPage() {
                     <ArrowLeft />
                 </Link>
                 <div>
-                    <h1 className="text-2xl font-medium text-title">Privacy Explanation</h1>
-                    <p className="text-description text-sm">This explanation outlines how we collect, use, and protect your personal information.</p>
+                    <h1 className="text-2xl font-medium text-title">Terms Of Service</h1>
+                    <p className="text-description text-sm">Terms Of Service explanation outlines how we collect, use, and protect your personal information.</p>
                 </div>
             </div>
             <div className="bg-white rounded-xl border p-6">
                 <div className="flex items-center justify-between mb-4 gap-4">
-                    <h1 className="text-2xl md:text-3xl font-semibold text-title whitespace-nowrap">Privacy explanation</h1>
+                    <h1 className="text-2xl md:text-3xl font-semibold text-title whitespace-nowrap">Terms of Service</h1>
                     <Button
                         onClick={() => setEditing(!editing)}
                         className="max-w-xs"

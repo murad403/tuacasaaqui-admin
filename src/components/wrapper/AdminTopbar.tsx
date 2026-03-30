@@ -2,10 +2,15 @@
 
 import { Bell } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
+import { useGetProfileQuery } from "@/redux/features/settings/settings.api";
 
 export default function AdminTopbar() {
+  const { data: profile } = useGetProfileQuery();
+  const displayName = profile?.name || "Admin";
+  const displayImage = profile?.image || "";
+
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between h-16 px-2 md:px-4 lg:px-6 border-b border-gray-200 bg-white">
       <SidebarTrigger className="-ml-1" />
@@ -18,13 +23,14 @@ export default function AdminTopbar() {
         <div className="flex items-center gap-2.5">
           <div className="hidden sm:block text-right">
             <p className="text-sm font-semibold text-gray-900 leading-tight">
-              Fernando
+              {displayName}
             </p>
           </div>
           <Link href="/settings/personal-information">
             <Avatar className="size-9 bg-[#1b3a5c]">
+              <AvatarImage src={displayImage} alt={displayName} />
               <AvatarFallback className="bg-[#1b3a5c] text-white text-sm font-semibold">
-                F
+                {displayName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </Link>

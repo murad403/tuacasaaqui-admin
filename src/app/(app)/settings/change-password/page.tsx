@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState } from "react";
 import { KeyRound, Eye, EyeOff, ArrowLeft } from "lucide-react";
@@ -6,21 +7,34 @@ import Link from "next/link";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { ChangePasswordFormData, changePasswordSchema } from "@/validation/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useChangePasswordMutation } from "@/redux/features/settings/settings.api";
+import { toast } from "react-toastify";
 
 const inputClass = "w-full px-4 py-3 border border-gray-300 rounded-lg text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1b3a5c]/30 focus:border-[#1b3a5c] transition pr-11";
 
 export default function ChangePasswordPage() {
     const [show, setShow] = useState({ current: false, newPass: false, confirm: false });
+    const [changePassword, { isLoading }] = useChangePasswordMutation();
 
     const toggle = (field: keyof typeof show) =>
         setShow((prev) => ({ ...prev, [field]: !prev[field] }));
 
-    const { register, handleSubmit, watch, formState: { errors }} = useForm<ChangePasswordFormData>({
+    const { register, handleSubmit, formState: { errors, isSubmitting }, reset} = useForm<ChangePasswordFormData>({
         resolver: zodResolver(changePasswordSchema)
     })
 
-    const onSubmit: SubmitHandler<ChangePasswordFormData> = (data) =>{
-        console.log(data);
+    const onSubmit: SubmitHandler<ChangePasswordFormData> = async (data) => {
+        try {
+            const response = await changePassword({
+                old_password: data.current_password,
+                new_password: data.new_password,
+            }).unwrap();
+            reset()
+            toast.success(response.message || "Password changed successfully.");
+        } catch (error: any) {
+            // console.log(error)
+            toast.error(error.data?.detail || "Failed to change password.");
+        }
     }
 
     return (
@@ -100,8 +114,8 @@ export default function ChangePasswordPage() {
                         </div>
                     </div>
 
-                    <Button type="submit" className="bg-heading hover:bg-heading/90 text-white rounded-lg px-6">
-                        Change Password
+                    <Button type="submit" disabled={isSubmitting || isLoading} className="bg-heading hover:bg-heading/90 text-white rounded-lg px-6">
+                        {isSubmitting || isLoading ? "Changing..." : "Change Password"}
                     </Button>
                 </form>
             </div>
