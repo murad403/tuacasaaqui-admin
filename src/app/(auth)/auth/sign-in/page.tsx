@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
@@ -10,6 +11,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSignInMutation } from "@/redux/features/auth/auth.api";
 import { saveTokens } from "@/utils/auth";
+import { toast } from 'react-toastify';
 
 
 export default function SignInPage() {
@@ -25,9 +27,11 @@ export default function SignInPage() {
     try {
       const response = await signIn(data).unwrap();
       await saveTokens(response.access, response.refresh);
-      router.push("/dashboard");
-    } catch (error: unknown) {
-      console.error("Sign in failed", error);
+      toast.success(response.message);
+      router.push("/");
+    } catch (error: any) {
+      // console.error("Sign in failed", error?.data);
+      toast.error(error.data?.detail || "Sign in failed");
     }
   };
 
@@ -95,7 +99,7 @@ export default function SignInPage() {
           type="submit"
           disabled={isSubmitting || isLoading}
         >
-          {isSubmitting || isLoading ? "Logging in..." : "Log In"}
+          {isLoading ? "Logging..." : "Log In"}
         </Button>
       </form>
     </AuthCard>

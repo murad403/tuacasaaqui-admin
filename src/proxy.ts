@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const SIGN_IN_URL = "/auth/sign-in";
-const DASHBOARD_URL = "/dashboard";
+const DASHBOARD_URL = "/";
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
     try {
@@ -59,10 +59,8 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL(DASHBOARD_URL, request.url));
     }
 
-    const isDashboardPage = pathname.startsWith("/dashboard");
-
-    // Unauthenticated users can only access auth routes from protected dashboard pages.
-    if (!refreshToken && isDashboardPage) {
+    // Unauthenticated users can only access auth routes.
+    if (!refreshToken && !isAuthPage) {
         return NextResponse.redirect(new URL(SIGN_IN_URL, request.url));
     }
 
@@ -72,7 +70,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
     matcher: [
-        "/auth/:path*",
-        "/dashboard/:path*"
+        "/((?!api|_next/static|_next/image|favicon.ico).*)"
     ]
 };

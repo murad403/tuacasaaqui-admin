@@ -19,6 +19,35 @@ type SignInResponse = {
     };
 };
 
+type SendOtpRequest = {
+    email: string;
+    reason: "reset";
+};
+
+type SendOtpResponse = {
+    message: string;
+    otp_preview?: string;
+};
+
+type VerifyOtpRequest = {
+    email: string;
+    code: string;
+    reason: "reset";
+};
+
+type VerifyOtpResponse = {
+    message: string;
+};
+
+type ResetPasswordRequest = {
+    email: string;
+    new_password: string;
+};
+
+type ResetPasswordResponse = {
+    message: string;
+};
+
 const authApi = baseApi1.injectEndpoints({
     endpoints: (builder) => ({
         signIn: builder.mutation<SignInResponse, SignInRequest>({
@@ -30,7 +59,7 @@ const authApi = baseApi1.injectEndpoints({
                 };
             }
         }),
-        sendOtp: builder.mutation<SignInResponse, SignInRequest>({
+        sendOtp: builder.mutation<SendOtpResponse, SendOtpRequest>({
             query: (data) => {
                 return {
                     url: "/users/send-otp/",
@@ -39,7 +68,7 @@ const authApi = baseApi1.injectEndpoints({
                 };
             }
         }),
-        verifyOtp: builder.mutation<SignInResponse, SignInRequest>({
+        verifyOtp: builder.mutation<VerifyOtpResponse, VerifyOtpRequest>({
             query: (data) => {
                 return {
                     url: "/users/verify-otp/",
@@ -48,7 +77,7 @@ const authApi = baseApi1.injectEndpoints({
                 };
             }
         }),
-        resetPassword: builder.mutation<SignInResponse, SignInRequest>({
+        resetPassword: builder.mutation<ResetPasswordResponse, ResetPasswordRequest>({
             query: (data) => {
                 return {
                     url: "/users/reset-password/",

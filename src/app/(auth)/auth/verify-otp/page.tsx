@@ -1,33 +1,39 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { verifyOtpSchema, type VerifyOtpFormData } from "@/validation/auth.validation";
 import AuthCard from "@/components/shared/AuthCard";
 import { ArrowLeft } from "lucide-react";
+import { useSendOtpMutation, useVerifyOtpMutation } from "@/redux/features/auth/auth.api";
+import { toast } from "react-toastify";
 
 export default function VerifyOtpPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") || "";
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [countdown, setCountdown] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [verifyOtp, { isLoading: isVerifying }] = useVerifyOtpMutation();
+  const [sendOtp, { isLoading: isResending }] = useSendOtpMutation();
 
   const { control, handleSubmit, setValue, getValues, formState: { errors, isSubmitting } } = useForm<VerifyOtpFormData>({
     resolver: zodResolver(verifyOtpSchema),
-    defaultValues: { otp: "" },
+    defaultValues: { code: "" },
   });
 
   const handleOtpChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
 
-    const currentOtp = getValues("otp").split("");
-    while (currentOtp.length < 5) currentOtp.push("");
+    const currentOtp = getValues("code").split("");
+    while (currentOtp.length < 6) currentOtp.push("");
     currentOtp[index] = value.slice(-1);
-    setValue("otp", currentOtp.join(""), { shouldValidate: true });
+    setValue("code", currentOtp.join(""), { shouldValidate: true });
 
-    if (value && index < 4) {
+    if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
@@ -36,28 +42,77 @@ export default function VerifyOtpPage() {
     index: number,
     e: React.KeyboardEvent<HTMLInputElement>
   ) => {
-    if (e.key === "Backspace" && !getValues("otp")[index] && index > 0) {
+    if (e.key === "Backspace" && !getValues("code")[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 5);
+    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
     if (pastedData) {
-      setValue("otp", pastedData.padEnd(5, ""), { shouldValidate: true });
-      const focusIndex = Math.min(pastedData.length, 4);
+      setValue("code", pastedData.padEnd(6, ""), { shouldValidate: true });
+      const focusIndex = Math.min(pastedData.length, 5);
       inputRefs.current[focusIndex]?.focus();
     }
   };
 
   const onSubmit = async (data: VerifyOtpFormData) => {
-    console.log("OTP:", data.otp);
-    router.push("/auth/reset-password");
+    if (!email) {
+      toast.error("Email not found. Please verify email again.");
+      router.push("/auth/forgot-password");
+      return;
+    }
+
+    try {
+      const response = await verifyOtp({
+        email,
+        code: data.code,
+        reason: "reset",
+      }).unwrap();
+
+      toast.success(response.message || "OTP verified successfully.");
+      router.push(`/auth/reset-password?email=${encodeURIComponent(email)}`);
+    } catch (error: unknown) {
+      const message =
+        typeof error === "object" &&
+        error !== null &&
+        "data" in error &&
+        typeof (error as { data?: { message?: string; detail?: string } }).data === "object"
+          ? (error as { data?: { message?: string; detail?: string } }).data?.message ||
+            (error as { data?: { message?: string; detail?: string } }).data?.detail ||
+            "OTP verification failed."
+          : "OTP verification failed.";
+
+      toast.error(message);
+    }
   };
 
-  const handleResend = () => {
-    console.log("Resend OTP");
+  const handleResend = async () => {
+    if (!email) {
+      toast.error("Email not found. Please verify email again.");
+      router.push("/auth/forgot-password");
+      return;
+    }
+
+    try {
+      const response = await sendOtp({ email, reason: "reset" }).unwrap();
+      toast.success(response.message || "OTP sent for reset.");
+    } catch (error: unknown) {
+      const message =
+        typeof error === "object" &&
+        error !== null &&
+        "data" in error &&
+        typeof (error as { data?: { message?: string; detail?: string } }).data === "object"
+          ? (error as { data?: { message?: string; detail?: string } }).data?.message ||
+            (error as { data?: { message?: string; detail?: string } }).data?.detail ||
+            "Failed to resend OTP."
+          : "Failed to resend OTP.";
+
+      toast.error(message);
+      return;
+    }
+
     setCountdown(60);
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
@@ -95,13 +150,15 @@ export default function VerifyOtpPage() {
         identity.
       </p>
 
+      {email && <p className="text-sm text-gray-500 mb-6">Email: {email}</p>}
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Controller
-          name="otp"
+          name="code"
           control={control}
           render={({ field }) => (
             <div className="flex gap-3 justify-between" onPaste={handlePaste}>
-              {Array.from({ length: 5 }).map((_, i) => (
+              {Array.from({ length: 6 }).map((_, i) => (
                 <input
                   key={i}
                   ref={(el) => {
@@ -119,8 +176,8 @@ export default function VerifyOtpPage() {
             </div>
           )}
         />
-        {errors.otp && (
-          <p className="text-red-500 text-xs text-center">{errors.otp.message}</p>
+        {errors.code && (
+          <p className="text-red-500 text-xs text-center">{errors.code.message}</p>
         )}
 
         <div className="flex items-center justify-between text-sm">
@@ -133,19 +190,20 @@ export default function VerifyOtpPage() {
             <button
               type="button"
               onClick={handleResend}
+              disabled={isResending}
               className="font-semibold text-gray-900 hover:underline cursor-pointer"
             >
-              Resend
+              {isResending ? "Sending..." : "Resend"}
             </button>
           )}
         </div>
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isVerifying}
           className="w-full py-3.5 bg-linear-to-b from-[#2c4f6e] to-[#0f2336] text-white rounded-lg font-semibold text-sm hover:opacity-90 transition disabled:opacity-60 cursor-pointer"
         >
-          {isSubmitting ? "Confirming..." : "Confirm"}
+          {isSubmitting || isVerifying ? "Confirming..." : "Confirm"}
         </button>
       </form>
     </AuthCard>

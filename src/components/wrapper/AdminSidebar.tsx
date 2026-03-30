@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import logo from "@/assets/logo/logo.png";
 import { LayoutDashboard, Newspaper, Users, Settings, LogOut } from "lucide-react";
 import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
@@ -19,6 +19,7 @@ const navItems = [
 
 export default function AdminSidebar() {
 
+  const router = useRouter();
   const [deleteModal, setDeleteModal] = useState<{
     open: boolean;
   }>({ open: false });
@@ -26,6 +27,18 @@ export default function AdminSidebar() {
 
   const handleLogout = () => {
     setDeleteModal({ open: true });
+    // console.log("object")
+  };
+
+  const handleConfirmLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+    } finally {
+      router.replace("/auth/sign-in");
+      router.refresh();
+    }
   };
 
   return (
@@ -89,7 +102,7 @@ export default function AdminSidebar() {
         </SidebarMenu>
       </SidebarFooter>
 
-      <LogoutModal open={deleteModal.open} onOpenChange={(open) => setDeleteModal({ open })} onConfirm={() => {}} />
+      <LogoutModal open={deleteModal.open} onOpenChange={(open) => setDeleteModal({ open })} onConfirm={handleConfirmLogout} />
     </Sidebar>
   );
 }

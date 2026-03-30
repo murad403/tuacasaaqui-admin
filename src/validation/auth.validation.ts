@@ -10,14 +10,13 @@ export const forgotPasswordSchema = z.object({
 });
 
 export const verifyOtpSchema = z.object({
-  otp: z.string().length(5, 'Please enter all 5 digits'),
+  code: z.string().length(6, 'Please enter all 6 digits'),
 });
 
 export const resetPasswordSchema = z.object({
     newPassword: z
       .string()
-      .min(8, 'Password must be at least 8 characters')
-      .max(10, 'Password must be at most 10 characters'),
+      .min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {

@@ -9,16 +9,34 @@ import {
 } from "@/validation/auth.validation";
 import AuthCard from "@/components/shared/AuthCard";
 import { ArrowLeft } from "lucide-react";
+import { useSendOtpMutation } from "@/redux/features/auth/auth.api";
+import { toast } from "react-toastify";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
+  const [sendOtp, { isLoading }] = useSendOtpMutation();
   const { register, handleSubmit, formState: { errors, isSubmitting }} = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
   });
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
-    console.log("Forgot password:", data);
-    router.push("/auth/verify-otp");
+    try {
+      const response = await sendOtp({ email: data.email, reason: "reset" }).unwrap();
+      toast.success(response.message || "OTP sent for reset.");
+      router.push(`/auth/verify-otp?email=${encodeURIComponent(data.email)}`);
+    } catch (error: unknown) {
+      const message =
+        typeof error === "object" &&
+        error !== null &&
+        "data" in error &&
+        typeof (error as { data?: { message?: string; detail?: string } }).data === "object"
+          ? (error as { data?: { message?: string; detail?: string } }).data?.message ||
+            (error as { data?: { message?: string; detail?: string } }).data?.detail ||
+            "Failed to send OTP."
+          : "Failed to send OTP.";
+
+      toast.error(message);
+    }
   };
 
   return (
@@ -48,10 +66,10 @@ export default function ForgotPasswordPage() {
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isLoading}
           className="w-full py-3.5 bg-linear-to-b from-[#2c4f6e] to-[#0f2336] text-white rounded-lg font-semibold text-sm hover:opacity-90 transition disabled:opacity-60 cursor-pointer"
         >
-          {isSubmitting ? "Verifying..." : "Verify"}
+          {isSubmitting || isLoading ? "Verifying..." : "Verify"}
         </button>
       </form>
     </AuthCard>
