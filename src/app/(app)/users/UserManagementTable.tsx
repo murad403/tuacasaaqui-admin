@@ -1,8 +1,9 @@
 "use client"
 import CustomPagination from '@/components/shared/CustomPagination'
-import { dummyUsers } from '@/lib/demo'
-import { CircleCheck, Clock, Eye, MapPin, Search, UserRound } from 'lucide-react'
+import { CircleCheck, Loader2, Search, Trash2, UserRound } from 'lucide-react'
 import React, { useMemo, useState } from 'react'
+import { useDeleteUserMutation, useGetUserQuery } from '@/redux/features/user/user.api'
+import { toast } from 'react-toastify'
 
 const avatarColors = [
     "bg-blue-100 text-blue-600",
@@ -17,31 +18,43 @@ const avatarColors = [
 
 const UserManagementTable = () => {
     const [search, setSearch] = useState("");
-    const [activeTab, setActiveTab] = useState("all users");
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
+    const [pageSize] = useState(5);
+    const { data: users = [], isLoading, isError } = useGetUserQuery();
+    const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
+
+    const handleDeleteUser = async (id: number) => {
+        try {
+            await deleteUser(id).unwrap();
+            toast.success("User deleted successfully");
+        } catch (error) {
+            const err = error as { data?: { detail?: string; message?: string } };
+            toast.error(err?.data?.detail || err?.data?.message || "Failed to delete user");
+        }
+    };
+
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString("en-US", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+        });
+    };
 
     const filteredUsers = useMemo(() => {
-        let result = dummyUsers;
+        let result = users;
 
         if (search) {
             const query = search.toLowerCase();
             result = result.filter(
                 (u) =>
                     u.name.toLowerCase().includes(query) ||
-                    u.email.toLowerCase().includes(query) ||
-                    u.mostViewed.toLowerCase().includes(query)
+                    u.email.toLowerCase().includes(query)
             );
         }
 
-        if (activeTab === "active") {
-            result = result.filter((u) => u.status === "active");
-        } else if (activeTab === "guest") {
-            result = result.filter((u) => u.status === "guest");
-        }
-
         return result;
-    }, [search, activeTab]);
+    }, [search, users]);
 
     const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
     const safeCurrentPage = Math.min(currentPage, totalPages);
@@ -69,26 +82,6 @@ const UserManagementTable = () => {
                     />
                 </div>
 
-                <div className="flex items-center gap-2">
-                    {
-                        ["all users", "active", "guest"].map((tab) => (
-                            <button
-                                key={tab}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${activeTab === tab
-                                    ? "bg-linear-to-r from-button-start via-button-end to-button-start text-white"
-                                    : "bg-[#F1F5F9] text-gray-700 hover:bg-[#F1F5F9]/80 capitalize"
-                                    }`}
-                                onClick={() => {
-                                    setActiveTab(tab)
-                                    setCurrentPage(1)
-                                }}
-                            >
-                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                            </button>
-                        ))
-
-                    }
-                </div>
             </div>
 
 
@@ -98,16 +91,29 @@ const UserManagementTable = () => {
                         <tr className="bg-slate-50 border-b border-slate-200">
                             <th className="font-semibold text-description text-left px-5 py-4 text-sm">User</th>
                             <th className="font-semibold text-description text-left px-3 py-4 text-sm">Status</th>
-                            <th className="font-semibold text-description text-left px-3 py-4 text-sm">Saved Areas</th>
-                            <th className="font-semibold text-description text-left px-3 py-4 text-sm">Searches</th>
-                            <th className="font-semibold text-description text-left px-3 py-4 text-sm">Most Viewed</th>
-                            <th className="font-semibold text-description text-right px-5 py-4 text-sm">Last Active</th>
+                            <th className="font-semibold text-description text-left px-3 py-4 text-sm">Joined Date</th>
+                            <th className="font-semibold text-description text-right px-5 py-4 text-sm">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredUsers.length === 0 ? (
+                        {isLoading ? (
                             <tr>
-                                <td colSpan={6} className="text-center py-12 text-description">
+                                <td colSpan={4} className="text-center py-12 text-description">
+                                    <div className="inline-flex items-center gap-2">
+                                        <Loader2 className="size-4 animate-spin" />
+                                        Loading users...
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : isError ? (
+                            <tr>
+                                <td colSpan={4} className="text-center py-12 text-red-600">
+                                    Failed to load users
+                                </td>
+                            </tr>
+                        ) : filteredUsers.length === 0 ? (
+                            <tr>
+                                <td colSpan={4} className="text-center py-12 text-description">
                                     No users found
                                 </td>
                             </tr>
@@ -126,36 +132,28 @@ const UserManagementTable = () => {
                                         </div>
                                     </td>
                                     <td className="px-3 py-4">
-                                        {user.status === "active" ? (
+                                        {user.is_verified ? (
                                             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium px-2.5 py-1">
                                                 <CircleCheck className="size-3.5" />
-                                                Active
+                                                Verified
                                             </span>
                                         ) : (
                                             <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 text-orange-700 text-xs font-medium px-2.5 py-1">
                                                 <UserRound className="size-3.5" />
-                                                Guest
+                                                Pending
                                             </span>
                                         )}
                                     </td>
-                                    <td className="text-description px-3 py-4 text-sm">
-                                        <div className="flex items-center gap-1.5">
-                                            <MapPin size={14} className="text-gray-400" />
-                                            {user.savedAreas}
-                                        </div>
-                                    </td>
-                                    <td className="text-description px-3 py-4 text-sm">
-                                        <div className="flex items-center gap-1.5">
-                                            <Eye size={14} className="text-gray-400" />
-                                            {user.searches}
-                                        </div>
-                                    </td>
-                                    <td className="text-description px-3 py-4 text-sm whitespace-nowrap">{user.mostViewed}</td>
+                                    <td className="text-description px-3 py-4 text-sm whitespace-nowrap">{formatDate(user.date_joined)}</td>
                                     <td className="text-description text-right px-5 py-4 text-sm whitespace-nowrap">
-                                        <div className="flex items-center justify-end gap-1.5">
-                                            <Clock size={14} className="text-gray-400" />
-                                            {user.lastActive}
-                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDeleteUser(user.id)}
+                                            disabled={isDeleting}
+                                            className="inline-flex items-center justify-center rounded-md p-2 text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                            <Trash2 className="size-4" />
+                                        </button>
                                     </td>
                                 </tr>
                             ))
