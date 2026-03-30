@@ -1,23 +1,34 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema, type SignInFormData } from "@/validation/auth.validation";
 import AuthCard from "@/components/shared/AuthCard";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSignInMutation } from "@/redux/features/auth/auth.api";
+import { saveTokens } from "@/utils/auth";
 
 
 export default function SignInPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [signIn, { isLoading }] = useSignInMutation();
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
   });
 
 
   const onSubmit = async (data: SignInFormData) => {
-    console.log("Sign in:", data);
+    try {
+      const response = await signIn(data).unwrap();
+      await saveTokens(response.access, response.refresh);
+      router.push("/dashboard");
+    } catch (error: unknown) {
+      console.error("Sign in failed", error);
+    }
   };
 
   return (
@@ -82,9 +93,9 @@ export default function SignInPage() {
 
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isLoading}
         >
-          {isSubmitting ? "Logging in..." : "Log In"}
+          {isSubmitting || isLoading ? "Logging in..." : "Log In"}
         </Button>
       </form>
     </AuthCard>

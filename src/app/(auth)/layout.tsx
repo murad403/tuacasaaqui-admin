@@ -1,4 +1,7 @@
+"use client";
 import React from "react";
+import { Provider } from "react-redux";
+import store from "@/redux/store";
 
 export default function AuthLayout({
   children,
@@ -6,8 +9,10 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4 py-8">
-      {children}
-    </div>
+    <Provider store={store}>
+      <div className="min-h-screen bg-white flex items-center justify-center px-4 py-8">
+        {children}
+      </div>
+    </Provider>
   );
 }
