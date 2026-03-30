@@ -6,169 +6,198 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { ChevronDown, ChevronRight, Plus, Pencil, Trash2, FolderOpen, FileText, Folder } from 'lucide-react'
+import { ChevronDown, ChevronRight, Plus, Pencil, Trash2, FolderOpen, FileText, Folder, Loader2 } from 'lucide-react'
+import { toast } from 'react-toastify'
+import {
+  type GuideCategoryWithGuides,
+  type GuideItem,
+  useCreateGuideCategoriesMutation,
+  useCreateGuidesMutation,
+  useDeleteGuideCategoriesMutation,
+  useDeleteGuidesMutation,
+  useGetGuidesQuery,
+  useUpdateGuideCategoriesMutation,
+  useUpdateGuidesMutation
+} from '@/redux/features/guide/guide.api'
 
-interface Guide {
-  id: string
+type CategoryModalState = {
+  isOpen: boolean
+  mode: 'add' | 'edit'
+  slug?: string
   title: string
-  description: string
-  categoryId: string
-  date: string
+  order: number
 }
 
-interface Category {
-  id: string
-  name: string
-  guides: Guide[]
+type GuideModalState = {
+  isOpen: boolean
+  mode: 'add' | 'edit'
+  slug?: string
+  title: string
+  content: string
+  categoryId: string
+  is_published: boolean
 }
 
 const GuidesManagementPage = () => {
-  const [categories, setCategories] = useState<Category[]>([
-    {
-      id: '1',
-      name: 'Getting Started',
-      guides: [
-        {
-          id: 'g1',
-          title: 'How to Get Started',
-          description: 'A comprehensive guide for beginners',
-          categoryId: '1',
-          date: 'Mar 20, 2026'
-        }
-      ]
-    },
-    {
-      id: '2',
-      name: 'Advanced Features',
-      guides: [
-        {
-          id: 'g2',
-          title: 'Advanced Configuration',
-          description: 'Learn advanced features and customization',
-          categoryId: '2',
-          date: 'Mar 18, 2026'
-        }
-      ]
-    },
-    {
-      id: '3',
-      name: 'Troubleshooting',
-      guides: []
-    }
-  ])
+  const { data: categories = [], isLoading, isError } = useGetGuidesQuery()
+  const [createGuideCategories, { isLoading: isCreatingCategory }] = useCreateGuideCategoriesMutation()
+  const [updateGuideCategories, { isLoading: isUpdatingCategory }] = useUpdateGuideCategoriesMutation()
+  const [deleteGuideCategories, { isLoading: isDeletingCategory }] = useDeleteGuideCategoriesMutation()
+  const [createGuides, { isLoading: isCreatingGuide }] = useCreateGuidesMutation()
+  const [updateGuides, { isLoading: isUpdatingGuide }] = useUpdateGuidesMutation()
+  const [deleteGuides, { isLoading: isDeletingGuide }] = useDeleteGuidesMutation()
 
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(['1', '2', '3'])
-  const [categoryModal, setCategoryModal] = useState<{
-    isOpen: boolean
-    mode: 'add' | 'edit'
-    id?: string
-    name: string
-  }>({ isOpen: false, mode: 'add', name: '' })
-  const [guideModal, setGuideModal] = useState<{
-    isOpen: boolean
-    mode: 'add' | 'edit'
-    id?: string
-    title: string
-    description: string
-    categoryId: string
-  }>({ isOpen: false, mode: 'add', title: '', description: '', categoryId: '' })
+  const [collapsedCategories, setCollapsedCategories] = useState<string[]>([])
+  const [categoryModal, setCategoryModal] = useState<CategoryModalState>({
+    isOpen: false,
+    mode: 'add',
+    title: '',
+    order: 1
+  })
+  const [guideModal, setGuideModal] = useState<GuideModalState>({
+    isOpen: false,
+    mode: 'add',
+    title: '',
+    content: '',
+    categoryId: '',
+    is_published: true
+  })
+
+  const getErrorMessage = (error: unknown, fallback: string) => {
+    const err = error as { data?: { detail?: string; message?: string } }
+    return err?.data?.detail || err?.data?.message || fallback
+  }
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: '2-digit',
+      year: 'numeric'
+    })
+  }
 
   const toggleCategory = (categoryId: string) => {
-    setExpandedCategories((prev) =>
+    setCollapsedCategories((prev) =>
       prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId]
     )
   }
 
   const openAddCategoryModal = () => {
-    setCategoryModal({ isOpen: true, mode: 'add', name: '' })
+    const nextOrder = categories.length > 0 ? Math.max(...categories.map((category) => category.order)) + 1 : 1
+    setCategoryModal({ isOpen: true, mode: 'add', title: '', order: nextOrder })
   }
 
-  const openEditCategoryModal = (id: string, name: string) => {
-    setCategoryModal({ isOpen: true, mode: 'edit', id, name })
+  const openEditCategoryModal = (category: GuideCategoryWithGuides) => {
+    setCategoryModal({
+      isOpen: true,
+      mode: 'edit',
+      slug: category.slug,
+      title: category.title,
+      order: category.order
+    })
   }
 
   const closeCategoryModal = () => {
-    setCategoryModal({ isOpen: false, mode: 'add', name: '' })
+    setCategoryModal({ isOpen: false, mode: 'add', title: '', order: 1 })
   }
 
-  const saveCategory = () => {
-    if (categoryModal.name.trim().length === 0) return
+  const saveCategory = async () => {
+    if (categoryModal.title.trim().length === 0) return
 
-    if (categoryModal.mode === 'add') {
-      const newCategory: Category = {
-        id: Date.now().toString(),
-        name: categoryModal.name,
-        guides: []
-      }
-      setCategories([...categories, newCategory])
-      setExpandedCategories((prev) => [...prev, newCategory.id])
-    } else if (categoryModal.id) {
-      setCategories((prev) =>
-        prev.map((cat) => (cat.id === categoryModal.id ? { ...cat, name: categoryModal.name } : cat))
-      )
+    const payload = {
+      title: categoryModal.title.trim(),
+      order: categoryModal.order
     }
-    closeCategoryModal()
+
+    try {
+      if (categoryModal.mode === 'add') {
+        await createGuideCategories(payload).unwrap()
+        toast.success('Category created successfully')
+      } else if (categoryModal.slug) {
+        await updateGuideCategories({ slug: categoryModal.slug, data: payload }).unwrap()
+        toast.success('Category updated successfully')
+      }
+
+      closeCategoryModal()
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Failed to save category'))
+    }
   }
 
-  const deleteCategory = (categoryId: string) => {
-    setCategories((prev) => prev.filter((cat) => cat.id !== categoryId))
-    setExpandedCategories((prev) => prev.filter((id) => id !== categoryId))
+  const deleteCategory = async (slug: string) => {
+    try {
+      await deleteGuideCategories(slug).unwrap()
+      toast.success('Category deleted successfully')
+      setCollapsedCategories((prev) => prev.filter((id) => id !== slug))
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Failed to delete category'))
+    }
   }
 
-
-  const openEditGuideModal = (categoryId: string, guide: Guide) => {
+  const openEditGuideModal = (guide: GuideItem) => {
     setGuideModal({
       isOpen: true,
       mode: 'edit',
-      id: guide.id,
+      slug: guide.slug,
       title: guide.title,
-      description: guide.description,
-      categoryId
+      content: guide.content,
+      categoryId: String(guide.category),
+      is_published: guide.is_published
+    })
+  }
+
+  const openAddGuideModal = () => {
+    if (categories.length === 0) {
+      toast.error('Please add a category first')
+      return
+    }
+
+    setGuideModal({
+      isOpen: true,
+      mode: 'add',
+      title: '',
+      content: '',
+      categoryId: String(categories[0].id),
+      is_published: true
     })
   }
 
   const closeGuideModal = () => {
-    setGuideModal({ isOpen: false, mode: 'add', title: '', description: '', categoryId: '' })
+    setGuideModal({ isOpen: false, mode: 'add', title: '', content: '', categoryId: '', is_published: true })
   }
 
-  const saveGuide = () => {
-    if (guideModal.title.trim().length === 0 || guideModal.description.trim().length === 0) return
+  const saveGuide = async () => {
+    if (guideModal.title.trim().length === 0 || guideModal.content.trim().length === 0) return
 
-    setCategories((prev) =>
-      prev.map((cat) => {
-        if (cat.id === guideModal.categoryId) {
-          if (guideModal.mode === 'add') {
-            const newGuide: Guide = {
-              id: Date.now().toString(),
-              title: guideModal.title,
-              description: guideModal.description,
-              categoryId: guideModal.categoryId,
-              date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-            }
-            return { ...cat, guides: [...cat.guides, newGuide] }
-          } else {
-            return {
-              ...cat,
-              guides: cat.guides.map((g) =>
-                g.id === guideModal.id
-                  ? { ...g, title: guideModal.title, description: guideModal.description }
-                  : g
-              )
-            }
-          }
-        }
-        return cat
-      })
-    )
-    closeGuideModal()
+    const payload = {
+      category: Number(guideModal.categoryId),
+      title: guideModal.title.trim(),
+      content: guideModal.content.trim(),
+      is_published: guideModal.is_published
+    }
+
+    try {
+      if (guideModal.mode === 'add') {
+        await createGuides(payload).unwrap()
+        toast.success('Guide created successfully')
+      } else if (guideModal.slug) {
+        await updateGuides({ slug: guideModal.slug, data: payload }).unwrap()
+        toast.success('Guide updated successfully')
+      }
+
+      closeGuideModal()
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Failed to save guide'))
+    }
   }
 
-  const deleteGuide = (categoryId: string, guideId: string) => {
-    setCategories((prev) =>
-      prev.map((cat) =>
-        cat.id === categoryId ? { ...cat, guides: cat.guides.filter((g) => g.id !== guideId) } : cat
-      )
-    )
+  const deleteGuide = async (slug: string) => {
+    try {
+      await deleteGuides(slug).unwrap()
+      toast.success('Guide deleted successfully')
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Failed to delete guide'))
+    }
   }
 
   return (
@@ -189,13 +218,7 @@ const GuidesManagementPage = () => {
             <Folder className='size-4'/> Add Category
           </button>
           <button
-            onClick={() => {
-              if (categories.length === 0) {
-                alert('Please add a category first')
-                return
-              }
-              setGuideModal({ isOpen: true, mode: 'add', title: '', description: '', categoryId: categories[0].id })
-            }}
+            onClick={openAddGuideModal}
             className="bg-linear-to-r from-button-start via-button-end to-button-start text-white flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium cursor-pointer"
           >
             <Plus size={16} />
@@ -204,18 +227,31 @@ const GuidesManagementPage = () => {
         </div>
       </div>
 
+      {isLoading ? (
+        <div className="py-12 flex items-center justify-center text-description">
+          <Loader2 className="size-5 animate-spin mr-2" />
+          Loading guides...
+        </div>
+      ) : null}
+
+      {isError ? (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          Failed to load guides.
+        </div>
+      ) : null}
+
       {/* Categories List */}
       <div className="space-y-2">
         {categories.map((category) => (
-          <div key={category.id} className="border rounded-lg overflow-hidden">
+          <div key={category.slug} className="border rounded-lg overflow-hidden">
             {/* Category Header */}
             <div className="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition">
               <div className="flex items-center gap-3 flex-1">
                 <button
-                  onClick={() => toggleCategory(category.id)}
+                  onClick={() => toggleCategory(category.slug)}
                   className="p-1 hover:bg-gray-200 rounded transition"
                 >
-                  {expandedCategories.includes(category.id) ? (
+                  {!collapsedCategories.includes(category.slug) ? (
                     <ChevronDown size={20} style={{ color: '#214572' }} />
                   ) : (
                     <ChevronRight size={20} style={{ color: '#214572' }} />
@@ -224,7 +260,7 @@ const GuidesManagementPage = () => {
                 <FolderOpen size={20} style={{ color: '#214572' }} />
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold" style={{ color: '#1A202C' }}>
-                    {category.name}
+                    {category.title}
                   </h3>
                   <span className="text-sm bg-gray-200 rounded-sm px-1.5">
                     {category.guides.length}
@@ -235,13 +271,14 @@ const GuidesManagementPage = () => {
               {/* Category Actions */}
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => openEditCategoryModal(category.id, category.name)}
+                  onClick={() => openEditCategoryModal(category)}
                   className="p-2 hover:bg-gray-200 rounded transition"
                 >
                   <Pencil size={18} style={{ color: '#214572' }} />
                 </button>
                 <button
-                  onClick={() => deleteCategory(category.id)}
+                  onClick={() => deleteCategory(category.slug)}
+                  disabled={isDeletingCategory}
                   className="p-2 hover:bg-red-100 rounded transition"
                 >
                   <Trash2 size={18} color="#ef4444" />
@@ -250,7 +287,7 @@ const GuidesManagementPage = () => {
             </div>
 
             {/* Guides List (Expandable) */}
-            {expandedCategories.includes(category.id) && (
+            {!collapsedCategories.includes(category.slug) && (
               <div className="border-t bg-white">
                 {category.guides.length === 0 ? (
                   <div className="p-4 text-center" style={{ color: '#64748B' }}>
@@ -259,7 +296,7 @@ const GuidesManagementPage = () => {
                 ) : (
                   <div className="divide-y">
                     {category.guides.map((guide) => (
-                      <div key={guide.id} className="flex items-center justify-between p-4 hover:bg-gray-50 transition">
+                      <div key={guide.slug} className="flex items-center justify-between p-4 hover:bg-gray-50 transition">
                         <div className="flex items-center gap-3 flex-1 ml-8">
                           <FileText size={18} style={{ color: '#64748B' }} />
                           <div className="flex flex-col">
@@ -267,10 +304,10 @@ const GuidesManagementPage = () => {
                               {guide.title}
                             </p>
                             <p style={{ color: '#64748B' }} className="text-sm">
-                              {guide.description}
+                              {guide.content}
                             </p>
                             <span style={{ color: '#64748B' }} className="text-xs mt-1">
-                              {guide.date}
+                              {formatDate(guide.created_at)}
                             </span>
                           </div>
                         </div>
@@ -278,13 +315,14 @@ const GuidesManagementPage = () => {
                         {/* Guide Actions */}
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => openEditGuideModal(category.id, guide)}
+                            onClick={() => openEditGuideModal(guide)}
                             className="p-2 hover:bg-gray-200 rounded transition"
                           >
                             <Pencil size={18} style={{ color: '#214572' }} />
                           </button>
                           <button
-                            onClick={() => deleteGuide(category.id, guide.id)}
+                            onClick={() => deleteGuide(guide.slug)}
+                            disabled={isDeletingGuide}
                             className="p-2 hover:bg-red-100 rounded transition"
                           >
                             <Trash2 size={18} color="#ef4444" />
@@ -314,9 +352,21 @@ const GuidesManagementPage = () => {
                 Category Name *
               </label>
               <Input
-                value={categoryModal.name}
-                onChange={(e) => setCategoryModal({ ...categoryModal, name: e.target.value })}
+                value={categoryModal.title}
+                onChange={(e) => setCategoryModal({ ...categoryModal, title: e.target.value })}
                 placeholder="Enter category name"
+                className="border"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#1A202C' }}>
+                Order *
+              </label>
+              <Input
+                type="number"
+                min={1}
+                value={categoryModal.order}
+                onChange={(e) => setCategoryModal({ ...categoryModal, order: Number(e.target.value) || 1 })}
                 className="border"
               />
             </div>
@@ -327,7 +377,7 @@ const GuidesManagementPage = () => {
             </button>
             <Button
               onClick={saveCategory}
-              disabled={categoryModal.name.trim().length === 0}
+              disabled={categoryModal.title.trim().length === 0 || isCreatingCategory || isUpdatingCategory}
               style={{ backgroundColor: '#214572' }}
               className="text-white"
             >
@@ -357,8 +407,8 @@ const GuidesManagementPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}
+                      <SelectItem key={cat.id} value={String(cat.id)}>
+                        {cat.title}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -381,8 +431,8 @@ const GuidesManagementPage = () => {
                 Description *
               </label>
               <Textarea
-                value={guideModal.description}
-                onChange={(e) => setGuideModal({ ...guideModal, description: e.target.value })}
+                value={guideModal.content}
+                onChange={(e) => setGuideModal({ ...guideModal, content: e.target.value })}
                 placeholder="Enter guide description"
                 className="border min-h-32 resize-none"
               />
@@ -394,7 +444,7 @@ const GuidesManagementPage = () => {
             </button>
             <Button
               onClick={saveGuide}
-              disabled={guideModal.title.trim().length === 0 || guideModal.description.trim().length === 0}
+              disabled={guideModal.title.trim().length === 0 || guideModal.content.trim().length === 0 || isCreatingGuide || isUpdatingGuide}
               style={{ backgroundColor: '#214572' }}
               className="text-white"
             >
