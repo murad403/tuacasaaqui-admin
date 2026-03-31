@@ -1,8 +1,8 @@
 import Stats from "./dashboard/Stats";
-import MostViewedAreas from "./dashboard/MostViewedAreas";
-import SearchActivity from "./dashboard/SearchActivity";
-import MostSavedNeighborhoods from "./dashboard/MostSavedNeighborhoods";
-
+import UserRegistrationTrend from "./dashboard/UserRegistrationTrend";
+import MarketStatusBreakdown from "./dashboard/MarketStatusBreakdown";
+import FeedbackRatingTrend from "./dashboard/FeedbackRatingTrend";
+import PropertyTypeMix from "./dashboard/PropertyTypeMix";
 
 export default function DashboardPage() {
     return (
@@ -20,17 +20,27 @@ export default function DashboardPage() {
             {/* Stat Cards */}
             <Stats />
 
-            {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                {/* Search Activity */}
-                <SearchActivity/>
+            {/* Charts Row 1 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                {/* User Registration Trend */}
+                <div className="lg:col-span-2">
+                    <UserRegistrationTrend />
+                </div>
 
-                {/* Most Viewed Areas */}
-                <MostViewedAreas/>
+                {/* Market Status Breakdown */}
+                <MarketStatusBreakdown />
             </div>
 
-            {/* Most Saved Neighborhoods */}
-            <MostSavedNeighborhoods/>
+            {/* Charts Row 2 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* Feedback Rating Trend */}
+                <div className="lg:col-span-2">
+                    <FeedbackRatingTrend />
+                </div>
+
+                {/* Property Type Mix */}
+                <PropertyTypeMix />
+            </div>
         </div>
     );
 }

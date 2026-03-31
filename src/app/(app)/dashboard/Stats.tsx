@@ -1,4 +1,4 @@
-import { FileText, GitCompareArrows, MapPin, TrendingUp, Users } from "lucide-react";
+import { BookOpen, Building2, FileText, GitCompareArrows, MapPin, Star, TrendingUp, Users } from "lucide-react";
 
 const stats = [
     {
@@ -6,35 +6,42 @@ const stats = [
         value: "24,586",
         change: "+12.5%",
         icon: Users,
-        color: "bg-[#1b3a5c]",
+        color: "bg-[#EFF6FF]",
     },
     {
-        label: "Area Searches",
+        label: "Total Properties",
         value: "156,234",
         change: "+8.3%",
-        icon: MapPin,
-        color: "bg-emerald-500",
+        icon: Building2,
+        color: "bg-[#F0FDFA]",
     },
     {
-        label: "Published Articles",
+        label: "Total News",
         value: "128",
         change: "+4",
         icon: FileText,
-        color: "bg-blue-600",
+        color: "bg-[#FFF7ED]",
     },
     {
-        label: "Compared Zones",
+        label: "Total Guides",
         value: "3,456",
         change: "+6.7%",
-        icon: GitCompareArrows,
-        color: "bg-cyan-500",
+        icon: BookOpen ,
+        color: "bg-[#FAF5FF]",
     },
+    {
+        label: "Avg Rating",
+        value: "4.2",
+        change: "+0.3",
+        icon: Star,
+        color: "bg-[#FEFCE8]",
+    }
 ];
 
 
 const Stats = () => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
         {stats.map((stat) => (
           <div
             key={stat.label}
@@ -42,7 +49,7 @@ const Stats = () => {
           >
             <div className="flex items-start justify-between mb-3">
               <div
-                className={`${stat.color} text-white p-2.5 rounded-full`}
+                className={`${stat.color} text-amber-300 p-2.5 rounded-lg`}
               >
                 <stat.icon className="size-5" />
               </div>
