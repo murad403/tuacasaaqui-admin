@@ -1,91 +1,60 @@
 "use client";
-import { useState } from "react";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { articleSchema, type ArticleFormData } from "@/validation/article.validation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { CalendarIcon, ImagePlus, X, ArrowLeft } from "lucide-react";
+import { ImagePlus, X, ArrowLeft } from "lucide-react";
 import RichTextEditor from "@/components/shared/RichTextEditor";
 import Link from "next/link";
-
-
-const categories = [
-    "Real Estate",
-    "Market Analysis",
-    "Investment",
-    "Architecture",
-    "Interior Design",
-    "Neighborhood Guide",
-    "Legal & Finance",
-    "Technology",
-];
+import { useGetGuideCategoriesQuery } from "@/redux/features/guide/guide.api";
 
 interface ArticleFormProps {
     defaultValues?: Partial<ArticleFormData>;
     onSubmit: (data: ArticleFormData) => void;
     isEditing?: boolean;
+    isLoading?: boolean;
 }
 
 export default function ArticleForm({
     defaultValues,
     onSubmit,
     isEditing = false,
+    isLoading = false,
 }: ArticleFormProps) {
-    const [tagInput, setTagInput] = useState("");
+    const { data: categories = [] } = useGetGuideCategoriesQuery();
 
     const { register, handleSubmit, control, setValue, formState: { errors } } = useForm<ArticleFormData>({
         resolver: zodResolver(articleSchema),
         defaultValues: {
             title: "",
-            description: "",
             content: "",
-            category: "",
-            tags: [],
-            author: "",
+            category: 0,
+            location: "",
             image: "",
+            is_featured: false,
+            is_published: true,
             ...defaultValues,
         },
     });
 
     const watchedValues = useWatch({ control });
-    const tags = useWatch({ control, name: "tags" });
 
-    const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" || e.key === ",") {
-            e.preventDefault();
-            const tag = tagInput.trim();
-            if (tag && !tags.includes(tag)) {
-                setValue("tags", [...tags, tag], { shouldValidate: true });
-            }
-            setTagInput("");
-        }
-    };
-
-    const removeTag = (tagToRemove: string) => {
-        setValue(
-            "tags",
-            tags.filter((t) => t !== tagToRemove),
-            { shouldValidate: true }
-        );
-    };
+    const imagePreview = (() => {
+        const imageValue = watchedValues.image;
+        if (!imageValue) return "";
+        if (typeof imageValue === "string") return imageValue;
+        return URL.createObjectURL(imageValue);
+    })();
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                setValue("image", reader.result as string, { shouldValidate: true });
-            };
-            reader.readAsDataURL(file);
+            setValue("image", file, { shouldValidate: true });
         }
     };
 
@@ -104,7 +73,7 @@ export default function ArticleForm({
                 </Link>
                 <div>
                     <h1 className="text-2xl font-bold text-title">
-                        {isEditing ? "Edit Article" : "Create New Article"}
+                        {isEditing ? "Edit News" : "Create News"}
                     </h1>
                     <p className="text-sm text-description mt-0.5">
                         {isEditing
@@ -122,11 +91,11 @@ export default function ArticleForm({
                         <Label className="text-base font-medium text-title mb-3 block">
                             Cover Image
                         </Label>
-                    {watchedValues.image ? (
+                    {imagePreview ? (
                         <div className="relative rounded-lg overflow-hidden border">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                                src={watchedValues.image}
+                                src={imagePreview}
                                 alt="Article preview"
                                 className="w-full h-64 object-cover"
                             />
@@ -155,7 +124,7 @@ export default function ArticleForm({
                             />
                         </label>
                     )}
-                    {errors.image && (
+                    {typeof errors.image?.message === "string" && (
                         <p className="text-sm text-red-500 mt-2">{errors.image.message}</p>
                     )}
                 </div>
@@ -174,25 +143,6 @@ export default function ArticleForm({
                     />
                     {errors.title && (
                         <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
-                    )}
-                </div>
-
-                {/* Description */}
-                <div className="bg-white rounded-xl border p-6">
-                    <Label htmlFor="description" className="text-base font-medium text-title mb-2 block">
-                        Short Description
-                    </Label>
-                    <Textarea
-                        id="description"
-                        placeholder="Write a brief description that appears in previews..."
-                        rows={3}
-                        {...register("description")}
-                        className={cn(errors.description && "border-red-500")}
-                    />
-                    {errors.description && (
-                        <p className="text-sm text-red-500 mt-1">
-                            {errors.description.message}
-                        </p>
                     )}
                 </div>
 
@@ -232,14 +182,17 @@ export default function ArticleForm({
                             name="category"
                             control={control}
                             render={({ field }) => (
-                                <Select onValueChange={field.onChange} value={field.value}>
+                                <Select
+                                    value={String(field.value || "")}
+                                    onValueChange={(value) => field.onChange(Number(value))}
+                                >
                                     <SelectTrigger className={cn("w-full", errors.category && "border-red-500")}>
-                                        <SelectValue placeholder="Select a category" />
+                                        <SelectValue placeholder="Select category" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {categories.map((cat) => (
-                                            <SelectItem key={cat} value={cat}>
-                                                {cat}
+                                        {categories.map((category) => (
+                                            <SelectItem key={category.id} value={String(category.id)}>
+                                                {category.title}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -251,111 +204,53 @@ export default function ArticleForm({
                         )}
                     </div>
 
-                    {/* Tags */}
+                    {/* Location */}
                     <div>
-                        <Label className="text-base font-medium text-title mb-2 block">
-                            Tags
+                        <Label htmlFor="location" className="text-base font-medium text-title mb-2 block">
+                            Location
                         </Label>
                         <Input
-                            placeholder="safety, transport, brooklyn"
-                            value={tagInput}
-                            onChange={(e) => setTagInput(e.target.value)}
-                            onKeyDown={handleTagKeyDown}
-                            className={cn(errors.tags && "border-red-500")}
+                            id="location"
+                            placeholder="Enter location"
+                            {...register("location")}
+                            className={cn(errors.location && "border-red-500")}
                         />
-                        <p className="text-xs text-blue-500 mt-1">Separate tags with commas</p>
-                        {tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-3">
-                                {tags.map((tag) => (
-                                    <Badge
-                                        key={tag}
-                                        variant="secondary"
-                                        className="gap-1 pl-2.5 pr-1.5 py-1"
-                                    >
-                                        {tag}
-                                        <button
-                                            type="button"
-                                            onClick={() => removeTag(tag)}
-                                            className="hover:bg-gray-300 rounded-full p-0.5"
-                                        >
-                                            <X className="size-3" />
-                                        </button>
-                                    </Badge>
-                                ))}
-                            </div>
-                        )}
-                        {errors.tags && (
-                            <p className="text-sm text-red-500 mt-1">{errors.tags.message}</p>
+                        {errors.location && (
+                            <p className="text-sm text-red-500 mt-1">{errors.location.message}</p>
                         )}
                     </div>
 
-                    {/* Author */}
-                    <div>
-                        <Label htmlFor="author" className="text-base font-medium text-title mb-2 block">
-                            Author
-                        </Label>
-                        <Input
-                            id="author"
-                            placeholder="Enter author name"
-                            {...register("author")}
-                            className={cn(errors.author && "border-red-500")}
-                        />
-                        {errors.author && (
-                            <p className="text-sm text-red-500 mt-1">{errors.author.message}</p>
-                        )}
+                    <div className="space-y-3">
+                        <Label className="text-base font-medium text-title block">Visibility</Label>
+                        <label className="flex items-center gap-2 text-sm text-title cursor-pointer select-none">
+                            <input
+                                type="checkbox"
+                                {...register("is_published")}
+                                className="size-4 rounded border-gray-300 text-button-start focus:ring-button-start"
+                            />
+                            Published
+                        </label>
+                        <label className="flex items-center gap-2 text-sm text-title cursor-pointer select-none">
+                            <input
+                                type="checkbox"
+                                {...register("is_featured")}
+                                className="size-4 rounded border-gray-300 text-button-start focus:ring-button-start"
+                            />
+                            Featured
+                        </label>
                     </div>
 
-                    {/* Publish Date */}
-                    <div>
-                        <Label className="text-base font-medium text-title mb-2 block">
-                            Publish Date
-                        </Label>
-                        <Controller
-                            name="publishDate"
-                            control={control}
-                            render={({ field }) => (
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <button
-                                            className={cn(
-                                                "w-full flex justify-between items-center text-left font-normal border border-gray-400 rounded-lg py-2 px-4",
-                                                !field.value && "text-muted-foreground",
-                                                errors.publishDate && "border-red-500"
-                                            )}
-                                        >
-                                            {field.value ? format(field.value, "PPP") : "Pick a date"}
-                                            <CalendarIcon className="ml-2 h-4 w-4" />
-                                        </button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="end">
-                                        <div>
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value}
-                                                onSelect={field.onChange}
-                                                initialFocus
-                                            />
-                                        </div>
-                                    </PopoverContent>
-                                </Popover>
-                            )}
-                        />
-                        {errors.publishDate && (
-                            <p className="text-sm text-red-500 mt-1">
-                                {errors.publishDate.message}
-                            </p>
-                        )}
-                    </div>
+
                 </div>
 
                 {/* Inline Article Preview */}
                 <div className="bg-white rounded-xl border p-6">
                     <h2 className="text-base font-semibold text-title mb-4">Article Preview</h2>
                     <div className="rounded-lg border overflow-hidden">
-                        {watchedValues.image ? (
+                        {imagePreview ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
-                                src={watchedValues.image}
+                                src={imagePreview}
                                 alt="Preview"
                                 className="w-full h-36 object-cover"
                             />
@@ -369,11 +264,11 @@ export default function ArticleForm({
                                 {watchedValues.title || "Article title will appear here"}
                             </p>
                             <p className="text-xs text-description line-clamp-2">
-                                {watchedValues.description || "Description will appear here"}
+                                No description provided
                             </p>
-                            {watchedValues.category && (
+                            {typeof watchedValues.category === "number" && watchedValues.category > 0 && (
                                 <Badge variant="secondary" className="text-xs mt-1">
-                                    {watchedValues.category}
+                                    Category: {watchedValues.category}
                                 </Badge>
                             )}
                         </div>
@@ -383,9 +278,10 @@ export default function ArticleForm({
                 {/* Submit */}
                 <Button
                     type="submit"
-                    className="w-full bg-linear-to-r from-button-start to-button-end text-white"
+                    disabled={isLoading}
+                    className="w-full bg-linear-to-r from-button-start to-button-end text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {isEditing ? "Update Article" : "Publish Article"}
+                    {isLoading ? "Saving..." : (isEditing ? "Update Article" : "Publish Article")}
                 </Button>
             </div>
         </div>
