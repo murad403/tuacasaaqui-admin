@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Loader2, Star, Trash2 } from 'lucide-react'
+import { Loader2, MessageSquareCheck, Star, Trash2 } from 'lucide-react'
 import { toast } from 'react-toastify'
+import CustomPagination from '@/components/shared/CustomPagination'
 import {
   type FeedbackCategory,
   type GetFeedbackParams,
@@ -22,6 +22,8 @@ const FeedbackManagementPage = () => {
   const [ratingFilter, setRatingFilter] = useState<RatingFilter>('all')
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 10
 
   const [feedbackResolve, { isLoading: isResolving }] = useFeedbackResolveMutation()
   const [feedbackDelete, { isLoading: isDeleting }] = useFeedbackDeleteMutation()
@@ -51,6 +53,14 @@ const FeedbackManagementPage = () => {
   } = useGetFeedbackQuery(queryParams)
 
   const { data: stats, isLoading: isStatsLoading } = useFeedbackStatsQuery()
+
+  const totalPages = Math.max(1, Math.ceil(feedbacks.length / pageSize))
+  const safeCurrentPage = Math.min(currentPage, totalPages)
+
+  const paginatedFeedbacks = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * pageSize
+    return feedbacks.slice(startIndex, startIndex + pageSize)
+  }, [feedbacks, pageSize, safeCurrentPage])
 
   const handleResolve = async (id: number) => {
     try {
@@ -135,11 +145,17 @@ const FeedbackManagementPage = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4 mb-8 pb-6 border-b">
+      <div className="flex items-center flex-wrap gap-4 mb-8 pb-6 border-b">
         <span style={{ color: '#64748B' }} className="text-sm font-medium">
           Filters:
         </span>
-        <Select value={ratingFilter} onValueChange={(value) => setRatingFilter(value as RatingFilter)}>
+        <Select
+          value={ratingFilter}
+          onValueChange={(value) => {
+            setRatingFilter(value as RatingFilter)
+            setCurrentPage(1)
+          }}
+        >
           <SelectTrigger className="w-40 border">
             <SelectValue />
           </SelectTrigger>
@@ -153,7 +169,13 @@ const FeedbackManagementPage = () => {
           </SelectContent>
         </Select>
 
-        <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value as CategoryFilter)}>
+        <Select
+          value={categoryFilter}
+          onValueChange={(value) => {
+            setCategoryFilter(value as CategoryFilter)
+            setCurrentPage(1)
+          }}
+        >
           <SelectTrigger className="w-40 border">
             <SelectValue />
           </SelectTrigger>
@@ -167,7 +189,13 @@ const FeedbackManagementPage = () => {
           </SelectContent>
         </Select>
 
-        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilter)}>
+        <Select
+          value={statusFilter}
+          onValueChange={(value) => {
+            setStatusFilter(value as StatusFilter)
+            setCurrentPage(1)
+          }}
+        >
           <SelectTrigger className="w-40 border">
             <SelectValue />
           </SelectTrigger>
@@ -180,7 +208,7 @@ const FeedbackManagementPage = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-white border rounded-lg p-6">
           <p style={{ color: '#64748B' }} className="text-sm font-medium">
             Total Feedback
@@ -220,7 +248,8 @@ const FeedbackManagementPage = () => {
 
       {/* Table */}
       <div className="bg-white rounded-lg border overflow-hidden">
-        <table className="w-full">
+        <div className="w-full overflow-x-auto">
+        <table className="w-full min-w-225">
           <thead className="bg-gray-50 border-b">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#1A202C' }}>
@@ -266,7 +295,7 @@ const FeedbackManagementPage = () => {
                 </td>
               </tr>
             ) : (
-              feedbacks.map((feedback) => (
+              paginatedFeedbacks.map((feedback) => (
                 <tr key={feedback.id} className="border-t hover:bg-gray-50 transition">
                   <td className="px-6 py-4">{renderStars(feedback.rating)}</td>
                   <td className="px-6 py-4">
@@ -274,27 +303,27 @@ const FeedbackManagementPage = () => {
                       {getCategoryLabel(feedback.category)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm" style={{ color: '#1A202C' }}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: '#1A202C' }}>
                     {feedback.message}
                   </td>
                   <td className="px-6 py-4 text-sm font-medium" style={{ color: getStatusColor(feedback.is_resolved) }}>
                     {feedback.is_resolved ? 'Resolved' : 'Pending'}
                   </td>
-                  <td className="px-6 py-4 text-sm" style={{ color: '#64748B' }}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: '#64748B' }}>
                     {formatDate(feedback.created_at)}
                   </td>
                   <td className="px-6 py-4 text-sm">
                     <div className="flex items-center gap-2">
                       {!feedback.is_resolved ? (
-                        <Button
+                        <button
                           onClick={() => handleResolve(feedback.id)}
-                          size="sm"
                           disabled={isResolving}
-                          className="text-xs px-3 py-1.5 rounded"
+                          className="text-xs px-4 whitespace-nowrap py-1.5 rounded-sm bg-linear-to-r from-button-start via-button-end to-button-start text-white flex items-center gap-2 cursor-pointer"
                           style={{ backgroundColor: '#214572' }}
                         >
+                          <MessageSquareCheck className='size-4' />
                           Mark Resolved
-                        </Button>
+                        </button>
                       ) : null}
 
                       <button
@@ -312,6 +341,15 @@ const FeedbackManagementPage = () => {
             )}
           </tbody>
         </table>
+        </div>
+
+        <CustomPagination
+          currentPage={safeCurrentPage}
+          totalItems={feedbacks.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="feedback"
+        />
       </div>
     </div>
   )

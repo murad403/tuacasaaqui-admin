@@ -3,6 +3,7 @@ import CustomPagination from '@/components/shared/CustomPagination'
 import { CircleCheck, Loader2, Search, UserRound } from 'lucide-react'
 import React, { useMemo, useState } from 'react'
 import { useGetUserQuery } from '@/redux/features/user/user.api'
+import Image from 'next/image'
 
 const avatarColors = [
     "bg-blue-100 text-blue-600",
@@ -14,6 +15,7 @@ const avatarColors = [
     "bg-yellow-100 text-yellow-700",
     "bg-red-100 text-red-600",
 ];
+
 
 const UserManagementTable = () => {
     const [search, setSearch] = useState("");
@@ -111,9 +113,13 @@ const UserManagementTable = () => {
                                 <tr key={user.id} className="hover:bg-slate-50/70 border-b border-slate-200 last:border-b-0 align-top">
                                     <td className="px-5 py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className={`size-9 rounded-full flex items-center justify-center font-semibold text-sm shrink-0 ${avatarColors[((safeCurrentPage - 1) * pageSize + index) % avatarColors.length]}`}>
-                                                {user.name.charAt(0)}
-                                            </div>
+                                                {typeof user.image === "string" && user.image.trim().length > 0 ? (
+                                                    <Image src={user.image} width={40} height={40} className='size-10 rounded-full object-cover' alt={user.name} />
+                                                ) : (
+                                                    <div className={`size-10 rounded-full flex items-center justify-center text-sm font-semibold ${avatarColors[index % avatarColors.length]}`}>
+                                                        {user.name?.charAt(0)?.toUpperCase() || "U"}
+                                                    </div>
+                                                )}
                                             <div>
                                                 <p className="font-medium text-title text-sm">{user.name}</p>
                                                 <p className="text-description text-xs mt-0.5">{user.email || "-"}</p>

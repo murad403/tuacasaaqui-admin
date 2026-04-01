@@ -13,7 +13,7 @@ const navItems = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard },
   { title: "News Management", href: "/news-management", icon: Newspaper },
   { title: "Guide", href: "/guide", icon: BookOpen },
-  { title: "FAQ", href: "/faq", icon: CircleQuestionMark },
+  { title: "FAQ's", href: "/faq", icon: CircleQuestionMark },
   { title: "Feedback", href: "/feedback", icon: MessageSquare },
   { title: "Users", href: "/users", icon: Users },
   { title: "Settings", href: "/settings", icon: Settings },

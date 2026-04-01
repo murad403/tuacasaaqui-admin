@@ -1,10 +1,14 @@
+"use client";
 import Stats from "./dashboard/Stats";
 import UserRegistrationTrend from "./dashboard/UserRegistrationTrend";
 import MarketStatusBreakdown from "./dashboard/MarketStatusBreakdown";
 import FeedbackRatingTrend from "./dashboard/FeedbackRatingTrend";
 import PropertyTypeMix from "./dashboard/PropertyTypeMix";
+import { useGetProfileQuery } from "@/redux/features/settings/settings.api";
 
 export default function DashboardPage() {
+    const { data } = useGetProfileQuery(undefined);
+    // console.log(data)
     return (
         <div>
             <div className="mb-6">
@@ -12,7 +16,7 @@ export default function DashboardPage() {
                     Dashboard Overview
                 </h1>
                 <p className="text-sm text-description mt-1">
-                    Welcome back, Fernando. Here&apos;s what&apos;s happening with your
+                    Welcome back, {data?.name || 'User'}. Here&apos;s what&apos;s happening with your
                     location intelligence platform.
                 </p>
             </div>

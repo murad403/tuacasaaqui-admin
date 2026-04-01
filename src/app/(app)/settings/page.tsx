@@ -7,7 +7,7 @@ const settingLinks = [
   { id: 2, name: "Change Password",         route: "/settings/change-password",         icon: KeyRound,    description: "Set a new password for your account" },
   { id: 3, name: "Privacy Policy",          route: "/settings/privacy-policy",          icon: Shield,      description: "Review the platform's privacy policy" },
   { id: 5, name: "Terms and Conditions",    route: "/settings/terms-conditions",    icon: FileText,    description: "Detailed explanation of terms and conditions" },
-  { id: 4, name: "Data Source Disclaimer",  route: "/settings/data-source-disclaimer",  icon: Database,    description: "Information about data sources used" },
+  { id: 4, name: "Disclaimer",  route: "/settings/data-source-disclaimer",  icon: Database,    description: "Information about data sources used" },
 ]
 
 const page = () => {

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import RichTextEditor from "@/components/shared/RichTextEditor";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCheck, SquarePen } from "lucide-react";
 import { useGetPrivacyQuery, useUpdatePrivacyMutation } from "@/redux/features/settings/settings.api";
 import { toast } from "react-toastify";
 
@@ -37,9 +37,9 @@ export default function PrivacyExplanationPage() {
         } catch (error: unknown) {
             const message =
                 typeof error === "object" &&
-                error !== null &&
-                "data" in error &&
-                typeof (error as { data?: { message?: string; detail?: string } }).data === "object"
+                    error !== null &&
+                    "data" in error &&
+                    typeof (error as { data?: { message?: string; detail?: string } }).data === "object"
                     ? (error as { data?: { message?: string; detail?: string } }).data?.message ||
                     (error as { data?: { message?: string; detail?: string } }).data?.detail ||
                     "Failed to update terms and conditions."
@@ -66,9 +66,16 @@ export default function PrivacyExplanationPage() {
                     <Button
                         onClick={handleEditOrSave}
                         disabled={isSaving}
-                        className="max-w-xs"
+                        className="max-w-25"
                     >
-                        {isSaving ? "Saving..." : editing ? "Save" : "Edit"}
+
+                        {isSaving ? "Saving..." : editing ?
+                            <span className="flex items-center gap-3 justify-center">
+                                <CheckCheck  className="size-4 text-white"/>
+                                Save</span> :
+                            <span className="flex items-center gap-3 justify-center">
+                                <SquarePen className="size-4 text-white" /> Edit
+                            </span>}
                     </Button>
                 </div>
                 {isLoading && !draftContent ? (

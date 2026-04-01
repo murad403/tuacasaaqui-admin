@@ -29,6 +29,12 @@ export type FeedbackRatingTrendItem = {
     count: number;
 };
 
+export type PropertyTypeMixItem = {
+    property_type: string;
+    count: number;
+    avg_price: number;
+};
+
 const dashboardApi1 = baseApi1.injectEndpoints({
     endpoints: (builder) =>({
         dashboardStats1: builder.query<DashboardStats1Response, void>({
@@ -80,7 +86,15 @@ const dashboardApi2 = baseApi2.injectEndpoints({
                 }
             }
         }),
+        typePropertyTypeMix: builder.query<PropertyTypeMixItem[], void>({
+            query: () =>{
+                return {
+                    url: "/analytics/properties/type-mix/",
+                    method: "GET"
+                }
+            }
+        }),
     })
 })
 
-export const { useDashboardStats2Query, useMarketStatusQuery, useFeedbackRatingTrendQuery } = dashboardApi2;
+export const { useDashboardStats2Query, useMarketStatusQuery, useFeedbackRatingTrendQuery, useTypePropertyTypeMixQuery } = dashboardApi2;

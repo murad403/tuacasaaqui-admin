@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Roboto } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ToastProvider from "@/components/shared/ToastProvider";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
+const roboto = Roboto({
+  subsets: ['latin'],
+  weight: ['400', '700', '800', '600', '500', '900'],
+})
 
 export const metadata: Metadata = {
   title: "TuacasaAqui",
@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} antialiased bg-white min-h-screen`}
+        className={`${roboto.className} antialiased bg-white min-h-screen`}
       >
         <TooltipProvider>
           {children}

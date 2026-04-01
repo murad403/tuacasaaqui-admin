@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import RichTextEditor from "@/components/shared/RichTextEditor";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCheck, SquarePen } from "lucide-react";
 import Link from "next/link";
 import { useGetPrivacyQuery, useUpdatePrivacyMutation } from "@/redux/features/settings/settings.api";
 import { toast } from "react-toastify";
@@ -56,19 +56,25 @@ export default function DataSourceDisclaimerPage() {
                     <ArrowLeft />
                 </Link>
                 <div>
-                    <h1 className="text-2xl font-medium text-title">Data Source Disclaimer</h1>
+                    <h1 className="text-2xl font-medium text-title">Disclaimer</h1>
                     <p className="text-description text-sm">This disclaimer outlines the sources and limitations of the data used on our platform.</p>
                 </div>
             </div>
             <div className="bg-white rounded-xl border p-6">
                 <div className="flex items-center justify-between mb-4 gap-4">
-                    <h1 className="text-2xl md:text-3xl font-semibold text-title whitespace-nowrap">Data source disclaimer</h1>
+                    <h1 className="text-2xl md:text-3xl font-semibold text-title whitespace-nowrap">Disclaimer</h1>
                     <Button
                         onClick={handleEditOrSave}
                         disabled={isSaving}
-                        className="max-w-xs"
+                        className="max-w-25"
                     >
-                        {isSaving ? "Saving..." : editing ? "Save" : "Edit"}
+                        {isSaving ? "Saving..." : editing ?
+                            <span className="flex items-center gap-3 justify-center">
+                                <CheckCheck  className="size-4 text-white"/>
+                                Save</span> :
+                            <span className="flex items-center gap-3 justify-center">
+                                <SquarePen className="size-4 text-white" /> Edit
+                            </span>}
                     </Button>
                 </div>
                 {isLoading && !draftContent ? (

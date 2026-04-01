@@ -133,7 +133,7 @@ export default function FaqPage() {
   if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-        Failed to load FAQs. Please try again later.
+        Failed to load ${"FAQ's"}. Please try again later.
       </div>
     );
   }
@@ -142,7 +142,7 @@ export default function FaqPage() {
     <div>
       <div className="mb-6 flex md:flex-row flex-col items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-title">FAQ Management</h1>
+          <h1 className="text-2xl font-bold text-title">{"FAQ's"} Management</h1>
           <p className="mt-1 text-sm text-description">
             Manage frequently asked questions with drag-and-drop ordering
           </p>

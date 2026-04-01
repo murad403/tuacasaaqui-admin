@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
 interface Article {
   id: number;
@@ -288,12 +289,11 @@ export default function NewsManagementPage() {
                     <td className="px-5 py-4">
                       <div className="flex items-start gap-3.5">
                         {article.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <Image
                             src={article.image}
                             alt={article.title}
-                            width={52}
-                            height={52}
+                            width={60}
+                            height={60}
                             className="rounded-md object-cover shrink-0"
                           />
                         ) : (

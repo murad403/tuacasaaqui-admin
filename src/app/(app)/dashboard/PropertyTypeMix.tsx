@@ -1,18 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
+import { useTypePropertyTypeMixQuery } from '@/redux/features/dashboard/dashboard.api';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-  { name: 'Apartment', value: 45 },
-  { name: 'House', value: 30 },
-  { name: 'Studio', value: 15 },
-  { name: 'Villa', value: 10 },
-];
-
-const COLORS = ['#0891b2', '#10b981', '#3b82f6', '#f59e0b'];
+const COLORS = ['#0891b2', '#10b981', '#3b82f6', '#f59e0b', "#14B8A6", "#EF4444"];
+const LABEL_COLORS = ['#3B82F6', '#10B981', '#007595', '#009966', '#155DFC', '#E17100'];
 
 const renderCustomLabel = (props: any) => {
-  const { name, value, cx = 0, cy = 0, midAngle = 0, innerRadius = 0, outerRadius = 0 } = props;
+  const { name, value, index = 0, cx = 0, cy = 0, midAngle = 0, innerRadius = 0, outerRadius = 0 } = props;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * Math.PI / 180);
   const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
@@ -21,10 +16,10 @@ const renderCustomLabel = (props: any) => {
     <text 
       x={x} 
       y={y} 
-      fill="white" 
+      fill={"#000000"} 
       textAnchor={x > cx ? 'start' : 'end'} 
       dominantBaseline="central"
-      fontSize="12"
+      fontSize="14"
       fontWeight="600"
     >
       {`${name} ${value}%`}
@@ -33,6 +28,15 @@ const renderCustomLabel = (props: any) => {
 };
 
 const PropertyTypeMix = () => {
+  const { data: propertyTypeMixData } = useTypePropertyTypeMixQuery();
+
+  const totalCount = (propertyTypeMixData ?? []).reduce((sum, item) => sum + item.count, 0);
+
+  const data = (propertyTypeMixData ?? []).map((item) => ({
+    name: item.property_type,
+    value: totalCount > 0 ? Number(((item.count / totalCount) * 100).toFixed(1)) : 0,
+  }));
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5">
       <h3 className="text-lg font-semibold text-title mb-4">Property Type Mix</h3>
