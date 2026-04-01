@@ -13,11 +13,11 @@ const MarketStatusBreakdown = () => {
   }));
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5">
-      <h3 className="text-lg font-semibold text-title mb-8">Market Status Breakdown</h3>
-      <div className="w-full h-80 flex items-center justify-center">
+    <div className="bg-white rounded-xl border border-gray-200 p-5 h-full">
+      <h3 className="text-lg font-semibold text-title mb-4">Market Status Breakdown</h3>
+      <div className="w-full h-80 flex items-center justify-center select-none **:outline-none **:focus:outline-none">
         <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
+          <PieChart accessibilityLayer={false}>
             <Pie
               data={data}
               cx="50%"

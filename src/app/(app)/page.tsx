@@ -27,12 +27,12 @@ export default function DashboardPage() {
             {/* Charts Row 1 */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
                 {/* User Registration Trend */}
-                <div className="xl:col-span-2">
+                <div className="xl:col-span-2 h-full">
                     <UserRegistrationTrend />
                 </div>
 
                 {/* Market Status Breakdown */}
-                <div className="">
+                <div className="h-full">
                     <MarketStatusBreakdown />
                 </div>
             </div>
@@ -40,12 +40,12 @@ export default function DashboardPage() {
             {/* Charts Row 2 */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                 {/* Feedback Rating Trend */}
-                <div className="xl:col-span-2">
+                <div className="xl:col-span-2 h-full">
                     <FeedbackRatingTrend />
                 </div>
 
                 {/* Property Type Mix */}
-                <div>
+                <div className="h-full">
                     <PropertyTypeMix />
                 </div>
             </div>

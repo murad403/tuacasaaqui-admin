@@ -38,11 +38,11 @@ const PropertyTypeMix = () => {
   }));
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5">
+    <div className="bg-white rounded-xl border border-gray-200 p-5 h-full">
       <h3 className="text-lg font-semibold text-title mb-4">Property Type Mix</h3>
-      <div className="w-full h-80 flex items-center justify-center">
+      <div className="w-full h-80 flex items-center justify-center select-none **:outline-none **:focus:outline-none">
         <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
+          <PieChart accessibilityLayer={false}>
             <Pie
               data={data}
               cx="50%"
