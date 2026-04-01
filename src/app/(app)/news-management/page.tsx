@@ -62,6 +62,7 @@ export default function NewsManagementPage() {
   const router = useRouter()
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -118,7 +119,14 @@ export default function NewsManagementPage() {
     }));
   }, [newsCategories]);
 
-  const filteredArticles = articles;
+  const filteredArticles = useMemo(() => {
+    if (statusFilter === "all") return articles;
+    return articles.filter((article) => {
+      if (statusFilter === "published") return article.status === "published";
+      if (statusFilter === "draft") return article.status === "draft";
+      return true;
+    });
+  }, [articles, statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredArticles.length / pageSize));
   const safeCurrentPage = Math.min(currentPage, totalPages);
@@ -231,6 +239,19 @@ export default function NewsManagementPage() {
               {category.name}
             </option>
           ))}
+        </select>
+
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none capitalize"
+        >
+          <option value="all">All Status</option>
+          <option value="draft">Draft</option>
+          <option value="published">Published</option>
         </select>
 
       </div>

@@ -349,7 +349,7 @@ const GuidesManagementPage = () => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1" style={{ color: '#1A202C' }}>
-                Category Name *
+                Category Name
               </label>
               <Input
                 value={categoryModal.title}
@@ -360,7 +360,7 @@ const GuidesManagementPage = () => {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1" style={{ color: '#1A202C' }}>
-                Order *
+                Order
               </label>
               <Input
                 type="number"
@@ -399,7 +399,7 @@ const GuidesManagementPage = () => {
             {guideModal.mode === 'add' && (
               <div>
                 <label className="block text-sm font-medium mb-1" style={{ color: '#1A202C' }}>
-                  Category *
+                  Category
                 </label>
                 <Select value={guideModal.categoryId} onValueChange={(value) => setGuideModal({ ...guideModal, categoryId: value })}>
                   <SelectTrigger className="border">
@@ -417,7 +417,7 @@ const GuidesManagementPage = () => {
             )}
             <div>
               <label className="block text-sm font-medium mb-1" style={{ color: '#1A202C' }}>
-                Title *
+                Title
               </label>
               <Input
                 value={guideModal.title}
@@ -428,7 +428,7 @@ const GuidesManagementPage = () => {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1" style={{ color: '#1A202C' }}>
-                Description *
+                Description
               </label>
               <Textarea
                 value={guideModal.content}

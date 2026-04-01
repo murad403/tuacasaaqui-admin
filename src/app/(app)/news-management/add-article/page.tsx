@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -24,10 +25,10 @@ export default function AddArticlePage() {
       };
       
       await createNews(payload).unwrap();
-      toast.success("Article created successfully!");
       router.push("/news-management");
-    } catch (error) {
-      console.error("Failed to create article:", error);
+      toast.success("Article created successfully!");
+    } catch (error: any) {
+      // console.error("Failed to create article:", error);
       toast.error("Failed to create article. Please try again.");
     }
   };

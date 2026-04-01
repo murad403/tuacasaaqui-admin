@@ -1,14 +1,13 @@
 "use client";
 
 import { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import ArticleForm from "@/components/shared/ArticleForm";
 import type { ArticleFormData } from "@/validation/article.validation";
 import { useGetSingleNewsQuery, useUpdateNewsMutation } from "@/redux/features/news/news.api";
 import { toast } from "react-toastify";
 
 function EditArticleContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug") || "";
 
@@ -28,6 +27,11 @@ function EditArticleContent() {
   } : undefined;
 
   const handleSubmit = async (data: ArticleFormData) => {
+    if (!slug) {
+      toast.error("Invalid article link. Please try again.");
+      return;
+    }
+
     try {
       const payload = {
         category: data.category,
@@ -40,11 +44,11 @@ function EditArticleContent() {
       };
       
       await updateNews({ slug, data: payload }).unwrap();
-      toast.success("Article updated successfully!", { position: "top-right" });
-      router.push("/news-management");
+      toast.success("Article updated successfully!");
+      window.location.replace("/news-management");
     } catch (error) {
       console.error("Failed to update article:", error);
-      toast.error("Failed to update article. Please try again.", { position: "top-right" });
+      toast.error("Failed to update article. Please try again.");
     }
   };
 

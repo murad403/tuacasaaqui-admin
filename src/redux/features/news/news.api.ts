@@ -25,7 +25,7 @@ const newsApi = baseApi2.injectEndpoints({
         }),
         createNews: builder.mutation({
             query: (data) => {
-                console.log("api call", data)
+                // console.log("api call", data)
                 const formData = new FormData();
                 Object.keys(data).forEach(key => {
                     if (data[key] !== null && data[key] !== undefined) {

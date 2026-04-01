@@ -1,9 +1,8 @@
 "use client"
 import CustomPagination from '@/components/shared/CustomPagination'
-import { CircleCheck, Loader2, Search, Trash2, UserRound } from 'lucide-react'
+import { CircleCheck, Loader2, Search, UserRound } from 'lucide-react'
 import React, { useMemo, useState } from 'react'
-import { useDeleteUserMutation, useGetUserQuery } from '@/redux/features/user/user.api'
-import { toast } from 'react-toastify'
+import { useGetUserQuery } from '@/redux/features/user/user.api'
 
 const avatarColors = [
     "bg-blue-100 text-blue-600",
@@ -21,17 +20,8 @@ const UserManagementTable = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize] = useState(5);
     const { data: users = [], isLoading, isError } = useGetUserQuery();
-    const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
-    const handleDeleteUser = async (id: number) => {
-        try {
-            await deleteUser(id).unwrap();
-            toast.success("User deleted successfully");
-        } catch (error) {
-            const err = error as { data?: { detail?: string; message?: string } };
-            toast.error(err?.data?.detail || err?.data?.message || "Failed to delete user");
-        }
-    };
+    
 
     const formatDate = (date: string) => {
         return new Date(date).toLocaleDateString("en-US", {
@@ -92,7 +82,6 @@ const UserManagementTable = () => {
                             <th className="font-semibold text-description text-left px-5 py-4 text-sm">User</th>
                             <th className="font-semibold text-description text-left px-3 py-4 text-sm">Status</th>
                             <th className="font-semibold text-description text-left px-3 py-4 text-sm">Joined Date</th>
-                            <th className="font-semibold text-description text-right px-5 py-4 text-sm">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -145,16 +134,6 @@ const UserManagementTable = () => {
                                         )}
                                     </td>
                                     <td className="text-description px-3 py-4 text-sm whitespace-nowrap">{formatDate(user.date_joined)}</td>
-                                    <td className="text-description text-right px-5 py-4 text-sm whitespace-nowrap">
-                                        <button
-                                            type="button"
-                                            onClick={() => handleDeleteUser(user.id)}
-                                            disabled={isDeleting}
-                                            className="inline-flex items-center justify-center rounded-md p-2 text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-                                        >
-                                            <Trash2 className="size-4" />
-                                        </button>
-                                    </td>
                                 </tr>
                             ))
                         )}
