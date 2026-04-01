@@ -1,45 +1,53 @@
-import { BookOpen, Building2, FileText, GitCompareArrows, MapPin, Star, TrendingUp, Users } from "lucide-react";
-
-const stats = [
-    {
-        label: "Total Users",
-        value: "24,586",
-        change: "+12.5%",
-        icon: Users,
-        color: "bg-[#EFF6FF]",
-    },
-    {
-        label: "Total Properties",
-        value: "156,234",
-        change: "+8.3%",
-        icon: Building2,
-        color: "bg-[#F0FDFA]",
-    },
-    {
-        label: "Total News",
-        value: "128",
-        change: "+4",
-        icon: FileText,
-        color: "bg-[#FFF7ED]",
-    },
-    {
-        label: "Total Guides",
-        value: "3,456",
-        change: "+6.7%",
-        icon: BookOpen ,
-        color: "bg-[#FAF5FF]",
-    },
-    {
-        label: "Avg Rating",
-        value: "4.2",
-        change: "+0.3",
-        icon: Star,
-        color: "bg-[#FEFCE8]",
-    }
-];
+"use client";
+import {
+  useDashboardStats1Query,
+  useDashboardStats2Query,
+} from "@/redux/features/dashboard/dashboard.api";
+import { BookOpen, Building2, FileText, Star, TrendingUp, Users } from "lucide-react";
 
 
 const Stats = () => {
+  const { data: dashboardStats1 } = useDashboardStats1Query();
+  const { data: dashboardStats2 } = useDashboardStats2Query();
+
+  const stats = [
+    {
+      label: "Total Users",
+      value: (dashboardStats1?.total ?? 0).toLocaleString(),
+      change: "",
+      icon: Users,
+      color: "bg-[#EFF6FF]",
+    },
+    {
+      label: "Total Properties",
+      value: (dashboardStats2?.total_properties ?? 0).toLocaleString(),
+      change: "",
+      icon: Building2,
+      color: "bg-[#F0FDFA]",
+    },
+    {
+      label: "Total News",
+      value: (dashboardStats2?.total_news ?? 0).toLocaleString(),
+      change: "",
+      icon: FileText,
+      color: "bg-[#FFF7ED]",
+    },
+    {
+      label: "Total Guides",
+      value: (dashboardStats2?.total_guides ?? 0).toLocaleString(),
+      change: "",
+      icon: BookOpen,
+      color: "bg-[#FAF5FF]",
+    },
+    {
+      label: "Avg Rating",
+      value: (dashboardStats2?.avg_feedback_rating ?? 0).toFixed(2),
+      change: "",
+      icon: Star,
+      color: "bg-[#FEFCE8]",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
         {stats.map((stat) => (
@@ -53,10 +61,12 @@ const Stats = () => {
               >
                 <stat.icon className="size-5" />
               </div>
-              <span className="flex items-center gap-1 text-xs font-semibold text-emerald-500">
-                <TrendingUp className="size-3" />
-                {stat.change}
-              </span>
+              {stat.change ? (
+                <span className="flex items-center gap-1 text-xs font-semibold">
+                  <TrendingUp className="size-3" />
+                  {stat.change}
+                </span>
+              ) : null}
             </div>
             <p className="text-2xl font-medium text-title">{stat.value}</p>
             <p className="text-sm text-description">{stat.label}</p>

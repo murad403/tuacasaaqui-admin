@@ -1,15 +1,17 @@
 'use client';
+import { useMarketStatusQuery } from '@/redux/features/dashboard/dashboard.api';
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer} from 'recharts';
 
-const data = [
-  { name: 'Stable', value: 45 },
-  { name: 'Rising', value: 35 },
-  { name: 'Declining', value: 20 },
-];
-
-const COLORS = ['#3b82f6', '#10b981', '#ef4444'];
+const COLORS = ['#3b82f6', '#10b981', '#ef4444', '#f59e0b'];
 
 const MarketStatusBreakdown = () => {
+  const { data: marketStatusData } = useMarketStatusQuery();
+
+  const data = (marketStatusData ?? []).map((item) => ({
+    name: item.market_status,
+    value: item.count,
+  }));
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5">
       <h3 className="text-lg font-semibold text-title mb-8">Market Status Breakdown</h3>
@@ -19,7 +21,7 @@ const MarketStatusBreakdown = () => {
             <Pie
               data={data}
               cx="50%"
-              cy="45%"
+              cy="50%"
               innerRadius={70}
               outerRadius={110}
               paddingAngle={5}

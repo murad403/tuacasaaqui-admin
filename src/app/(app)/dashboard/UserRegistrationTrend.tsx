@@ -1,17 +1,24 @@
 'use client';
+import { useUserRegistrationTrendQuery } from '@/redux/features/dashboard/dashboard.api';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-  { day: 'Tue', value: 12 },
-  { day: 'Wed', value: 15 },
-  { day: 'Thu', value: 13 },
-  { day: 'Fri', value: 20 },
-  { day: 'Sat', value: 26 },
-  { day: 'Sun', value: 22 },
-  { day: 'Mon', value: 24 },
-];
+const formatDay = (day: string) => {
+  const date = new Date(day);
+  if (Number.isNaN(date.getTime())) {
+    return day;
+  }
+
+  return date.toLocaleDateString('en-US', { weekday: 'short' });
+};
 
 const UserRegistrationTrend = () => {
+  const { data } = useUserRegistrationTrendQuery();
+
+  const chartData = (data ?? []).map((item) => ({
+    day: formatDay(item.day),
+    value: item.count,
+  }));
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5">
       <div className="flex items-center justify-between mb-4">
@@ -23,7 +30,7 @@ const UserRegistrationTrend = () => {
       </div>
       <div className="w-full h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#14B8A6" stopOpacity={0.2}/>
