@@ -3,12 +3,20 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Plus, Search, Pencil, Trash2, Eye, CircleCheck, Clock3 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, CircleCheck, Clock3, Newspaper } from "lucide-react";
 import DeleteArticleModal from "@/components/modal/DeleteArticleModal";
 import CustomPagination from "@/components/shared/CustomPagination";
-import { useGetNewsQuery, useDeleteNewsMutation } from "@/redux/features/news/news.api";
-import { useGetGuideCategoriesQuery } from "@/redux/features/guide/guide.api";
+import {
+  useCreateNewsCategoryMutation,
+  useDeleteNewsMutation,
+  useGetNewsCategoriesQuery,
+  useGetNewsQuery,
+} from "@/redux/features/news/news.api";
 import { toast } from "react-toastify";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 interface Article {
   id: number;
@@ -51,8 +59,11 @@ const toSlug = (value?: string) => {
 };
 
 export default function NewsManagementPage() {
+  const router = useRouter()
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [deleteModal, setDeleteModal] = useState<{
@@ -75,8 +86,9 @@ export default function NewsManagementPage() {
   }, [search, categoryFilter]);
 
   const { data: newsData, isLoading } = useGetNewsQuery(queryParams);
-  const { data: guideCategories = [] } = useGetGuideCategoriesQuery();
+  const { data: newsCategories = [] } = useGetNewsCategoriesQuery();
   const [deleteNewsMutation] = useDeleteNewsMutation();
+  const [createNewsCategoryMutation, { isLoading: isCreatingCategory }] = useCreateNewsCategoryMutation();
 
   const articles = useMemo(() => {
     if (!newsData) return [];
@@ -100,11 +112,11 @@ export default function NewsManagementPage() {
   }, [newsData]);
 
   const categoryOptions = useMemo(() => {
-    return guideCategories.map((category) => ({
+    return newsCategories.map((category) => ({
       slug: category.slug,
-      name: category.title,
+      name: category.name,
     }));
-  }, [guideCategories]);
+  }, [newsCategories]);
 
   const filteredArticles = articles;
 
@@ -120,6 +132,25 @@ export default function NewsManagementPage() {
 
   const handleDelete = (article: Article) => {
     setDeleteModal({ open: true, article });
+  };
+
+  const closeCategoryModal = () => {
+    setIsCategoryModalOpen(false);
+    setNewCategoryName("");
+  };
+
+  const handleCreateCategory = async () => {
+    const name = newCategoryName.trim();
+    if (!name) return;
+
+    try {
+      const response = await createNewsCategoryMutation({ name }).unwrap();
+      toast.success(response.message || "Category created successfully", { position: "top-right" });
+      closeCategoryModal();
+    } catch (error: any) {
+      const message = error?.data?.detail || error?.data?.message || "Failed to create category. Please try again.";
+      toast.error(message, { position: "top-right" });
+    }
   };
 
   const confirmDelete = async () => {
@@ -142,26 +173,37 @@ export default function NewsManagementPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex md:items-center gap-4 md:flex-row flex-col justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-title">News Management</h1>
           <p className="text-sm text-description mt-1">
             Manage and organize your articles
           </p>
         </div>
-        <Link href="/news-management/add-article">
-          <button
+        <div className="flex items-center gap-4">
+          <Button
             type="button"
-            className="bg-linear-to-r from-button-start via-button-end to-button-start text-white flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium cursor-pointer"
+            onClick={() => setIsCategoryModalOpen(true)}
+            className="flex items-center gap-2 whitespace-nowrap"
           >
-            <Plus className="size-4" />
+            <Newspaper className="size-5" />
+            Add News Category
+          </Button>
+
+          <Button
+          onClick={() => router.push("/news-management/add-article")}
+            type="button"
+            className="flex items-center gap-2"
+          >
+            <Plus className="size-5" />
             Create News
-          </button>
-        </Link>
+          </Button>
+
+        </div>
       </div>
 
       {/* Filters */}
-      <div className="mb-6 flex items-center gap-4 flex-col md:flex-row">
+      <div className="mb-6 flex md:items-center gap-4 flex-col md:flex-row">
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
           <input
@@ -181,11 +223,11 @@ export default function NewsManagementPage() {
             setCategoryFilter(e.target.value);
             setCurrentPage(1);
           }}
-          className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none"
+          className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none capitalize"
         >
           <option value="all">All Categories</option>
           {categoryOptions.map((category) => (
-            <option key={category.slug} value={category.slug}>
+            <option key={category.slug} value={category.slug} className="capitalize">
               {category.name}
             </option>
           ))}
@@ -221,84 +263,84 @@ export default function NewsManagementPage() {
                 const isDraft = article.status === "draft";
 
                 return (
-                <tr key={article.id} className="hover:bg-slate-50/70 border-b border-slate-200 last:border-b-0 align-top">
-                  <td className="px-5 py-4">
-                    <div className="flex items-start gap-3.5">
-                      {article.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={article.image}
-                          alt={article.title}
-                          width={52}
-                          height={52}
-                          className="rounded-md object-cover shrink-0"
-                        />
+                  <tr key={article.id} className="hover:bg-slate-50/70 border-b border-slate-200 last:border-b-0 align-top">
+                    <td className="px-5 py-4">
+                      <div className="flex items-start gap-3.5">
+                        {article.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={article.image}
+                            alt={article.title}
+                            width={52}
+                            height={52}
+                            className="rounded-md object-cover shrink-0"
+                          />
+                        ) : (
+                          <div className="w-13 h-13 rounded-md bg-slate-100 text-slate-400 text-[10px] flex items-center justify-center shrink-0">
+                            No image
+                          </div>
+                        )}
+                        <div className="min-w-0 max-w-lg">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-title line-clamp-1 text-[15px]">
+                              {article.title}
+                            </p>
+                            {article.is_featured && (
+                              <span className="rounded-full bg-amber-100 text-amber-700 text-[11px] font-medium px-2 py-0.5 shrink-0">
+                                Featured
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-description text-sm mt-1 line-clamp-1">
+                            {article.description}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-4">
+                      {isDraft ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 text-orange-700 text-xs font-medium px-2.5 py-1">
+                          <Clock3 className="size-3.5" />
+                          Draft
+                        </span>
                       ) : (
-                        <div className="w-13 h-13 rounded-md bg-slate-100 text-slate-400 text-[10px] flex items-center justify-center shrink-0">
-                          No image
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium px-2.5 py-1">
+                          <CircleCheck className="size-3.5" />
+                          Published
+                        </span>
+                      )}
+                    </td>
+                    <td className="text-description px-3 py-4 text-sm">
+                      {article.author_name}
+                    </td>
+                    <td className="text-description px-3 py-4 text-sm whitespace-nowrap">
+                      {format(new Date(article.publishDate), "MMM d, yyyy")}
+                    </td>
+                    <td className="text-description px-3 py-4 text-sm">
+                      {isDraft ? (
+                        "-"
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <Eye size={14} />
+                          {article.views.toLocaleString()}
                         </div>
                       )}
-                      <div className="min-w-0 max-w-lg">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-title line-clamp-1 text-[15px]">
-                            {article.title}
-                          </p>
-                          {article.is_featured && (
-                            <span className="rounded-full bg-amber-100 text-amber-700 text-[11px] font-medium px-2 py-0.5 shrink-0">
-                              Featured
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-description text-sm mt-1 line-clamp-1">
-                          {article.description}
-                        </p>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center justify-end gap-3">
+                        <Link href={`/news-management/edit-article?slug=${article.slug}`} className="text-description hover:text-title transition-colors">
+                          <Pencil size={14} />
+                        </Link>
+                        <button
+                          type="button"
+                          className="cursor-pointer text-red-500 hover:text-red-600 transition-colors"
+                          onClick={() => handleDelete(article)}
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-3 py-4">
-                    {isDraft ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 text-orange-700 text-xs font-medium px-2.5 py-1">
-                        <Clock3 className="size-3.5" />
-                        Draft
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium px-2.5 py-1">
-                        <CircleCheck className="size-3.5" />
-                        Published
-                      </span>
-                    )}
-                  </td>
-                  <td className="text-description px-3 py-4 text-sm">
-                    {article.author_name}
-                  </td>
-                  <td className="text-description px-3 py-4 text-sm whitespace-nowrap">
-                    {format(new Date(article.publishDate), "MMM d, yyyy")}
-                  </td>
-                  <td className="text-description px-3 py-4 text-sm">
-                    {isDraft ? (
-                      "-"
-                    ) : (
-                      <div className="flex items-center gap-1.5">
-                        <Eye size={14} />
-                        {article.views.toLocaleString()}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center justify-end gap-3">
-                      <Link href={`/news-management/edit-article?slug=${article.slug}`} className="text-description hover:text-title transition-colors">
-                        <Pencil size={14} />
-                      </Link>
-                      <button
-                        type="button"
-                        className="cursor-pointer text-red-500 hover:text-red-600 transition-colors"
-                        onClick={() => handleDelete(article)}
-                      >
-                        <Trash2 className="size-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                    </td>
+                  </tr>
                 );
               })
             )}
@@ -321,6 +363,43 @@ export default function NewsManagementPage() {
         articleTitle={deleteModal.article?.title || ""}
         onConfirm={confirmDelete}
       />
+
+      <Dialog open={isCategoryModalOpen} onOpenChange={(open) => (open ? setIsCategoryModalOpen(true) : closeCategoryModal())}>
+        <DialogContent className="max-w-md" showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-title">Add News Category</DialogTitle>
+          </DialogHeader>
+          <div>
+            <label className="block text-sm font-medium text-title mb-2">
+              Category Name
+            </label>
+            <Input
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              placeholder="Enter category name"
+              className="border"
+            />
+          </div>
+          <DialogFooter>
+            <button
+              type="button"
+              className="border border-slate-400 cursor-pointer py-2.5 px-4 w-full rounded-lg text-title"
+              onClick={closeCategoryModal}
+            >
+              Cancel
+            </button>
+            <Button
+              type="button"
+              onClick={handleCreateCategory}
+              disabled={!newCategoryName.trim() || isCreatingCategory}
+              className="text-white"
+              style={{ backgroundColor: "#214572" }}
+            >
+              {isCreatingCategory ? "Creating..." : "Create"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

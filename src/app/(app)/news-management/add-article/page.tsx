@@ -11,6 +11,7 @@ export default function AddArticlePage() {
   const [createNews, { isLoading }] = useCreateNewsMutation();
 
   const handleSubmit = async (data: ArticleFormData) => {
+    // console.log(data)
     try {
       const payload = {
         category: data.category,
@@ -23,11 +24,11 @@ export default function AddArticlePage() {
       };
       
       await createNews(payload).unwrap();
-      toast.success("Article created successfully!", { position: "top-right" });
+      toast.success("Article created successfully!");
       router.push("/news-management");
     } catch (error) {
       console.error("Failed to create article:", error);
-      toast.error("Failed to create article. Please try again.", { position: "top-right" });
+      toast.error("Failed to create article. Please try again.");
     }
   };
 

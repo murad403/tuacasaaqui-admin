@@ -41,7 +41,7 @@ const PropertyTypeMix = () => {
           <PieChart>
             <Pie
               data={data}
-              cx="40%"
+              cx="50%"
               cy="50%"
               outerRadius={100}
               paddingAngle={3}

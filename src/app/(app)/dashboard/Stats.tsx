@@ -1,8 +1,5 @@
 "use client";
-import {
-  useDashboardStats1Query,
-  useDashboardStats2Query,
-} from "@/redux/features/dashboard/dashboard.api";
+import { useDashboardStats1Query, useDashboardStats2Query } from "@/redux/features/dashboard/dashboard.api";
 import { BookOpen, Building2, FileText, Star, TrendingUp, Users } from "lucide-react";
 
 
@@ -49,30 +46,30 @@ const Stats = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5"
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div
-                className={`${stat.color} text-amber-300 p-2.5 rounded-lg`}
-              >
-                <stat.icon className="size-5" />
-              </div>
-              {stat.change ? (
-                <span className="flex items-center gap-1 text-xs font-semibold">
-                  <TrendingUp className="size-3" />
-                  {stat.change}
-                </span>
-              ) : null}
+    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
+      {stats.map((stat) => (
+        <div
+          key={stat.label}
+          className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5"
+        >
+          <div className="flex items-start justify-between mb-3">
+            <div
+              className={`${stat.color} text-amber-300 p-2.5 rounded-lg`}
+            >
+              <stat.icon className="size-5" />
             </div>
-            <p className="text-2xl font-medium text-title">{stat.value}</p>
-            <p className="text-sm text-description">{stat.label}</p>
+            {stat.change ? (
+              <span className="flex items-center gap-1 text-xs font-semibold">
+                <TrendingUp className="size-3" />
+                {stat.change}
+              </span>
+            ) : null}
           </div>
-        ))}
-      </div>
+          <p className="text-2xl font-medium text-title">{stat.value}</p>
+          <p className="text-sm text-description">{stat.label}</p>
+        </div>
+      ))}
+    </div>
   )
 }
 

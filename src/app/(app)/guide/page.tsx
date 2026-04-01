@@ -47,7 +47,7 @@ const GuidesManagementPage = () => {
   const [updateGuides, { isLoading: isUpdatingGuide }] = useUpdateGuidesMutation()
   const [deleteGuides, { isLoading: isDeletingGuide }] = useDeleteGuidesMutation()
 
-  const [collapsedCategories, setCollapsedCategories] = useState<string[]>([])
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([])
   const [categoryModal, setCategoryModal] = useState<CategoryModalState>({
     isOpen: false,
     mode: 'add',
@@ -77,7 +77,7 @@ const GuidesManagementPage = () => {
   }
 
   const toggleCategory = (categoryId: string) => {
-    setCollapsedCategories((prev) =>
+    setExpandedCategories((prev) =>
       prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId]
     )
   }
@@ -128,7 +128,7 @@ const GuidesManagementPage = () => {
     try {
       await deleteGuideCategories(slug).unwrap()
       toast.success('Category deleted successfully')
-      setCollapsedCategories((prev) => prev.filter((id) => id !== slug))
+      setExpandedCategories((prev) => prev.filter((id) => id !== slug))
     } catch (error) {
       toast.error(getErrorMessage(error, 'Failed to delete category'))
     }
@@ -251,7 +251,7 @@ const GuidesManagementPage = () => {
                   onClick={() => toggleCategory(category.slug)}
                   className="p-1 hover:bg-gray-200 rounded transition"
                 >
-                  {!collapsedCategories.includes(category.slug) ? (
+                  {expandedCategories.includes(category.slug) ? (
                     <ChevronDown size={20} style={{ color: '#214572' }} />
                   ) : (
                     <ChevronRight size={20} style={{ color: '#214572' }} />
@@ -287,7 +287,7 @@ const GuidesManagementPage = () => {
             </div>
 
             {/* Guides List (Expandable) */}
-            {!collapsedCategories.includes(category.slug) && (
+            {expandedCategories.includes(category.slug) && (
               <div className="border-t bg-white">
                 {category.guides.length === 0 ? (
                   <div className="p-4 text-center" style={{ color: '#64748B' }}>

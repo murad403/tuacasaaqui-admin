@@ -1,5 +1,16 @@
 import baseApi2 from "@/redux/api/baseApi2";
 
+export type NewsCategory = {
+    id: number;
+    name: string;
+    slug: string;
+};
+
+export type CreateNewsCategoryResponse = {
+    message: string;
+    data: NewsCategory;
+};
+
 const newsApi = baseApi2.injectEndpoints({
     endpoints: (builder) => ({
         getNews: builder.query({
@@ -14,6 +25,7 @@ const newsApi = baseApi2.injectEndpoints({
         }),
         createNews: builder.mutation({
             query: (data) => {
+                console.log("api call", data)
                 const formData = new FormData();
                 Object.keys(data).forEach(key => {
                     if (data[key] !== null && data[key] !== undefined) {
@@ -70,7 +82,27 @@ const newsApi = baseApi2.injectEndpoints({
             },
             invalidatesTags: ["news"]
         }),
+
+        createNewsCategory: builder.mutation<CreateNewsCategoryResponse, { name: string }>({
+            query: (data) => {
+                return {
+                    url: "/contents/news-categories/create/",
+                    method: "POST",
+                    body: data
+                };
+            },
+            invalidatesTags: ["news"]
+        }),
+        getNewsCategories: builder.query<NewsCategory[], void>({
+            query: () => {
+                return {
+                    url: "/contents/news-categories/",
+                    method: "GET"
+                };
+            },
+            providesTags: ["news"]
+        }),
     })
 });
 
-export const { useGetNewsQuery, useCreateNewsMutation, useGetSingleNewsQuery, useDeleteNewsMutation, useUpdateNewsMutation } = newsApi;
+export const { useGetNewsQuery, useCreateNewsMutation, useGetSingleNewsQuery, useDeleteNewsMutation, useUpdateNewsMutation, useGetNewsCategoriesQuery, useCreateNewsCategoryMutation } = newsApi;

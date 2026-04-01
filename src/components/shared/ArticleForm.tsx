@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { ImagePlus, X, ArrowLeft } from "lucide-react";
 import RichTextEditor from "@/components/shared/RichTextEditor";
 import Link from "next/link";
-import { useGetGuideCategoriesQuery } from "@/redux/features/guide/guide.api";
+import { useGetNewsCategoriesQuery } from "@/redux/features/news/news.api";
 
 interface ArticleFormProps {
     defaultValues?: Partial<ArticleFormData>;
@@ -26,7 +26,7 @@ export default function ArticleForm({
     isEditing = false,
     isLoading = false,
 }: ArticleFormProps) {
-    const { data: categories = [] } = useGetGuideCategoriesQuery();
+    const { data: categories = [] } = useGetNewsCategoriesQuery();
 
     const { register, handleSubmit, control, setValue, formState: { errors } } = useForm<ArticleFormData>({
         resolver: zodResolver(articleSchema),
@@ -43,6 +43,14 @@ export default function ArticleForm({
     });
 
     const watchedValues = useWatch({ control });
+
+    const previewContent = (watchedValues.content || "")
+        .replace(/<[^>]*>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    const selectedCategoryName =
+        categories.find((category) => category.id === watchedValues.category)?.name || "";
 
     const imagePreview = (() => {
         const imageValue = watchedValues.image;
@@ -111,7 +119,7 @@ export default function ArticleForm({
                         <label className="flex flex-col items-center justify-center w-full h-52 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors">
                             <ImagePlus className="size-10 text-gray-400 mb-2" />
                             <span className="text-sm text-gray-500 font-medium">
-                                Click to upload or drag and drop
+                                Click to upload
                             </span>
                             <span className="text-xs text-gray-400 mt-1">
                                 PNG, JPG up to 10MB
@@ -149,7 +157,7 @@ export default function ArticleForm({
                 {/* Content - Rich Text Editor */}
                 <div className="bg-white rounded-xl border p-6">
                     <Label className="text-base font-medium text-title mb-2 block">
-                        Article Content
+                        Article Content <span className="text-red-500">*</span>
                     </Label>
                     <Controller
                         name="content"
@@ -187,12 +195,12 @@ export default function ArticleForm({
                                     onValueChange={(value) => field.onChange(Number(value))}
                                 >
                                     <SelectTrigger className={cn("w-full", errors.category && "border-red-500")}>
-                                        <SelectValue placeholder="Select category" />
+                                        <SelectValue placeholder="Select category" className="capitalize" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {categories.map((category) => (
-                                            <SelectItem key={category.id} value={String(category.id)}>
-                                                {category.title}
+                                            <SelectItem key={category.id} value={String(category.id)} className="capitalize">
+                                                {category.name}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -264,11 +272,11 @@ export default function ArticleForm({
                                 {watchedValues.title || "Article title will appear here"}
                             </p>
                             <p className="text-xs text-description line-clamp-2">
-                                No description provided
+                                {previewContent || "Article description will appear here"}
                             </p>
                             {typeof watchedValues.category === "number" && watchedValues.category > 0 && (
-                                <Badge variant="secondary" className="text-xs mt-1">
-                                    Category: {watchedValues.category}
+                                <Badge variant="secondary" className="text-xs mt-1 capitalize">
+                                    Category: {selectedCategoryName || "Unknown"}
                                 </Badge>
                             )}
                         </div>
@@ -281,7 +289,7 @@ export default function ArticleForm({
                     disabled={isLoading}
                     className="w-full bg-linear-to-r from-button-start to-button-end text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {isLoading ? "Saving..." : (isEditing ? "Update Article" : "Publish Article")}
+                    {isLoading ? "Publishing..." : (isEditing ? "Update Article" : "Publish Article")}
                 </Button>
             </div>
         </div>

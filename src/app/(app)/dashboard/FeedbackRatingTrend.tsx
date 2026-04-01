@@ -1,26 +1,15 @@
 'use client';
-
-import React from 'react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
-
-const data = [
-  { month: 'Oct 23', value: 4.1 },
-  { month: 'Nov 23', value: 4.0 },
-  { month: 'Dec 23', value: 3.9 },
-  { month: 'Jan 24', value: 4.2 },
-  { month: 'Feb 24', value: 4.3 },
-  { month: 'Mar 25', value: 4.5 },
-];
+import { useFeedbackRatingTrendQuery } from '@/redux/features/dashboard/dashboard.api';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer} from 'recharts';
 
 const FeedbackRatingTrend = () => {
+  const { data: feedbackRatingTrendData } = useFeedbackRatingTrendQuery();
+
+  const data = (feedbackRatingTrendData ?? []).map((item) => ({
+    month: item.month,
+    value: item.count,
+  }));
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5">
       <h3 className="text-lg font-semibold text-title mb-4">Feedback Rating Trend</h3>

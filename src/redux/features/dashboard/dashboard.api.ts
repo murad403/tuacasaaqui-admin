@@ -23,6 +23,12 @@ export type MarketStatusItem = {
     percentage: number;
 };
 
+export type FeedbackRatingTrendItem = {
+    month: string;
+    avg_rating: number;
+    count: number;
+};
+
 const dashboardApi1 = baseApi1.injectEndpoints({
     endpoints: (builder) =>({
         dashboardStats1: builder.query<DashboardStats1Response, void>({
@@ -66,7 +72,15 @@ const dashboardApi2 = baseApi2.injectEndpoints({
                 }
             }
         }),
+        feedbackRatingTrend: builder.query<FeedbackRatingTrendItem[], void>({
+            query: () =>{
+                return {
+                    url: "/analytics/feedback/rating-trend/",
+                    method: "GET"
+                }
+            }
+        }),
     })
 })
 
-export const { useDashboardStats2Query, useMarketStatusQuery } = dashboardApi2;
+export const { useDashboardStats2Query, useMarketStatusQuery, useFeedbackRatingTrendQuery } = dashboardApi2;
