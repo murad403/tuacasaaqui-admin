@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import logo from "@/assets/logo/logo.png";
+import logo from "@/assets/logo/logo2.png";
 import { LayoutDashboard, Newspaper, Users, Settings, LogOut, BookOpen, CircleQuestionMark, MessageSquare } from "lucide-react";
 import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useState } from "react";
@@ -47,12 +47,9 @@ export default function AdminSidebar() {
   return (
     <Sidebar collapsible="icon" className="bg-white">
       <SidebarHeader className="p-0">
-        <div className="flex items-center justify-center h-16 px-4 border-b border-gray-200 group-data-[collapsible=icon]:px-0">
-          <Link href="/" className="flex items-center gap-2.5 min-w-0 group-data-[collapsible=icon]:justify-center">
-            <Image src={logo} alt="TuacasaAqui" width={40} height={40} className="shrink-0 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:h-8" />
-            <span className="text-lg font-bold text-[#1b3a5c] truncate group-data-[collapsible=icon]:hidden">
-              TuacasaAqui
-            </span>
+        <div className="flex items-center justify-center border-b h-16 border-gray-200 group-data-[collapsible=icon]:px-0">
+          <Link href="/" className="min-w-0 group-data-[collapsible=icon]:justify-center">
+            <Image src={logo} alt="TuacasaAqui" width={500} height={500} className="shrink-0 object-contain group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:h-8 size-20" />
           </Link>
         </div>
       </SidebarHeader>
