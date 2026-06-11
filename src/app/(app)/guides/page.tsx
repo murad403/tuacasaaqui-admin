@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ChevronDown, ChevronRight, Plus, Pencil, Trash2, FolderOpen, FileText, Folder, Loader2 } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   type GuideCategoryWithGuides,
   type GuideItem,
@@ -204,35 +205,44 @@ const GuidesManagementPage = () => {
     <div className="w-full">
       {/* Header */}
       <div className="flex md:items-center gap-4 md:flex-row flex-col justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-title">Guides Management</h1>
-          <p className="text-sm text-description mt-1">
-            Organize guides by categories
-          </p>
-        </div>
+        {isLoading ? (
+          <div>
+            <Skeleton className="h-8 w-48 mb-2 animate-pulse" />
+            <Skeleton className="h-4 w-96 animate-pulse" />
+          </div>
+        ) : (
+          <div>
+            <h1 className="text-2xl font-bold text-title">Guides Management</h1>
+            <p className="text-sm text-description mt-1">
+              Organize guides by categories
+            </p>
+          </div>
+        )}
         <div className="flex gap-3">
-          <button
-            onClick={openAddCategoryModal}
-            className="gap-2 px-4 py-2.5 text-sm font-medium rounded-md border border-slate-400 flex items-center cursor-pointer"
-          >
-            <Folder className='size-4'/> Add Category
-          </button>
-          <button
-            onClick={openAddGuideModal}
-            className="bg-linear-to-r from-button-start via-button-end to-button-start text-white flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium cursor-pointer"
-          >
-            <Plus size={16} />
-            Add Guide
-          </button>
+          {isLoading ? (
+            <>
+              <Skeleton className="h-10 w-32 rounded-md animate-pulse" />
+              <Skeleton className="h-10 w-28 rounded-md animate-pulse" />
+            </>
+          ) : (
+            <>
+              <button
+                onClick={openAddCategoryModal}
+                className="gap-2 px-4 py-2.5 text-sm font-medium rounded-md border border-slate-400 flex items-center cursor-pointer"
+              >
+                <Folder className='size-4'/> Add Category
+              </button>
+              <button
+                onClick={openAddGuideModal}
+                className="bg-linear-to-r from-button-start via-button-end to-button-start text-white flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium cursor-pointer"
+              >
+                <Plus size={16} />
+                Add Guide
+              </button>
+            </>
+          )}
         </div>
       </div>
-
-      {isLoading ? (
-        <div className="py-12 flex items-center justify-center text-description">
-          <Loader2 className="size-5 animate-spin mr-2" />
-          Loading guides...
-        </div>
-      ) : null}
 
       {isError ? (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -242,100 +252,143 @@ const GuidesManagementPage = () => {
 
       {/* Categories List */}
       <div className="space-y-2">
-        {categories.map((category) => (
-          <div key={category.slug} className="border rounded-lg overflow-hidden">
-            {/* Category Header */}
-            <div className="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition">
-              <div className="flex items-center gap-3 flex-1">
-                <button
-                  onClick={() => toggleCategory(category.slug)}
-                  className="p-1 hover:bg-gray-200 rounded transition"
-                >
-                  {expandedCategories.includes(category.slug) ? (
-                    <ChevronDown size={20} style={{ color: '#214572' }} />
-                  ) : (
-                    <ChevronRight size={20} style={{ color: '#214572' }} />
-                  )}
-                </button>
-                <FolderOpen size={20} style={{ color: '#214572' }} />
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold" style={{ color: '#1A202C' }}>
-                    {category.title}
-                  </h3>
-                  <span className="text-sm bg-gray-200 rounded-sm px-1.5">
-                    {category.guides.length}
-                  </span>
-                </div>
-              </div>
-
-              {/* Category Actions */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => openEditCategoryModal(category)}
-                  className="p-2 hover:bg-gray-200 rounded transition"
-                >
-                  <Pencil size={18} style={{ color: '#214572' }} />
-                </button>
-                <button
-                  onClick={() => deleteCategory(category.slug)}
-                  disabled={isDeletingCategory}
-                  className="p-2 hover:bg-red-100 rounded transition"
-                >
-                  <Trash2 size={18} color="#ef4444" />
-                </button>
-              </div>
-            </div>
-
-            {/* Guides List (Expandable) */}
-            {expandedCategories.includes(category.slug) && (
-              <div className="border-t bg-white">
-                {category.guides.length === 0 ? (
-                  <div className="p-4 text-center" style={{ color: '#64748B' }}>
-                    <p>No guides yet. Add one to get started.</p>
+        {isLoading ? (
+          <div className="space-y-4">
+            {[...Array(3)].map((_, idx) => (
+              <div key={idx} className="border rounded-lg overflow-hidden bg-white animate-pulse">
+                {/* Category Header Skeleton */}
+                <div className="flex items-center justify-between p-4 bg-gray-50/50">
+                  <div className="flex items-center gap-3 flex-1">
+                    <Skeleton className="size-5 rounded animate-pulse shrink-0" />
+                    <Skeleton className="size-5 rounded animate-pulse shrink-0" />
+                    <Skeleton className="h-5 w-40 animate-pulse" />
+                    <Skeleton className="h-5 w-8 rounded-sm animate-pulse" />
                   </div>
-                ) : (
-                  <div className="divide-y">
-                    {category.guides.map((guide) => (
-                      <div key={guide.slug} className="flex items-center justify-between p-4 hover:bg-gray-50 transition">
-                        <div className="flex items-center gap-3 flex-1 ml-8">
-                          <FileText size={18} style={{ color: '#64748B' }} />
-                          <div className="flex flex-col">
-                            <p className="font-medium" style={{ color: '#1A202C' }}>
-                              {guide.title}
-                            </p>
-                            <p style={{ color: '#64748B' }} className="text-sm">
-                              {guide.content}
-                            </p>
-                            <span style={{ color: '#64748B' }} className="text-xs mt-1">
-                              {formatDate(guide.created_at)}
-                            </span>
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="size-8 rounded animate-pulse" />
+                    <Skeleton className="size-8 rounded animate-pulse" />
+                  </div>
+                </div>
+                {/* For the first one, let's show child skeletons to mimic expanded state */}
+                {idx === 0 && (
+                  <div className="border-t bg-white divide-y">
+                    {[...Array(2)].map((_, guideIdx) => (
+                      <div key={guideIdx} className="flex items-center justify-between p-4 ml-8">
+                        <div className="flex items-center gap-3 flex-1">
+                          <Skeleton className="size-5 rounded animate-pulse shrink-0" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-1/4 animate-pulse" />
+                            <Skeleton className="h-3 w-3/4 animate-pulse" />
+                            <Skeleton className="h-3 w-20 animate-pulse" />
                           </div>
                         </div>
-
-                        {/* Guide Actions */}
                         <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => openEditGuideModal(guide)}
-                            className="p-2 hover:bg-gray-200 rounded transition"
-                          >
-                            <Pencil size={18} style={{ color: '#214572' }} />
-                          </button>
-                          <button
-                            onClick={() => deleteGuide(guide.slug)}
-                            disabled={isDeletingGuide}
-                            className="p-2 hover:bg-red-100 rounded transition"
-                          >
-                            <Trash2 size={18} color="#ef4444" />
-                          </button>
+                          <Skeleton className="size-8 rounded animate-pulse" />
+                          <Skeleton className="size-8 rounded animate-pulse" />
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            )}
+            ))}
           </div>
-        ))}
+        ) : (
+          categories.map((category) => (
+            <div key={category.slug} className="border rounded-lg overflow-hidden">
+              {/* Category Header */}
+              <div className="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition">
+                <div className="flex items-center gap-3 flex-1">
+                  <button
+                    onClick={() => toggleCategory(category.slug)}
+                    className="p-1 hover:bg-gray-200 rounded transition"
+                  >
+                    {expandedCategories.includes(category.slug) ? (
+                      <ChevronDown size={20} style={{ color: '#214572' }} />
+                    ) : (
+                      <ChevronRight size={20} style={{ color: '#214572' }} />
+                    )}
+                  </button>
+                  <FolderOpen size={20} style={{ color: '#214572' }} />
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold" style={{ color: '#1A202C' }}>
+                      {category.title}
+                    </h3>
+                    <span className="text-sm bg-gray-200 rounded-sm px-1.5">
+                      {category.guides.length}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Category Actions */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => openEditCategoryModal(category)}
+                    className="p-2 hover:bg-gray-200 rounded transition"
+                  >
+                    <Pencil size={18} style={{ color: '#214572' }} />
+                  </button>
+                  <button
+                    onClick={() => deleteCategory(category.slug)}
+                    disabled={isDeletingCategory}
+                    className="p-2 hover:bg-red-100 rounded transition"
+                  >
+                    <Trash2 size={18} color="#ef4444" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Guides List (Expandable) */}
+              {expandedCategories.includes(category.slug) && (
+                <div className="border-t bg-white">
+                  {category.guides.length === 0 ? (
+                    <div className="p-4 text-center" style={{ color: '#64748B' }}>
+                      <p>No guides yet. Add one to get started.</p>
+                    </div>
+                  ) : (
+                    <div className="divide-y">
+                      {category.guides.map((guide) => (
+                        <div key={guide.slug} className="flex items-center justify-between p-4 hover:bg-gray-50 transition">
+                          <div className="flex items-center gap-3 flex-1 ml-8">
+                            <FileText size={18} style={{ color: '#64748B' }} />
+                            <div className="flex flex-col">
+                              <p className="font-medium" style={{ color: '#1A202C' }}>
+                                {guide.title}
+                              </p>
+                              <p style={{ color: '#64748B' }} className="text-sm">
+                                {guide.content}
+                              </p>
+                              <span style={{ color: '#64748B' }} className="text-xs mt-1">
+                                {formatDate(guide.created_at)}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Guide Actions */}
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => openEditGuideModal(guide)}
+                              className="p-2 hover:bg-gray-200 rounded transition"
+                            >
+                              <Pencil size={18} style={{ color: '#214572' }} />
+                            </button>
+                            <button
+                              onClick={() => deleteGuide(guide.slug)}
+                              disabled={isDeletingGuide}
+                              className="p-2 hover:bg-red-100 rounded transition"
+                            >
+                              <Trash2 size={18} color="#ef4444" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </div>
 
       {/* Category Modal */}
