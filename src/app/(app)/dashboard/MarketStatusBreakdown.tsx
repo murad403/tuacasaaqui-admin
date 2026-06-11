@@ -1,14 +1,32 @@
 'use client';
 import { useMarketStatusQuery } from '@/redux/features/dashboard/dashboard.api';
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer} from 'recharts';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const COLORS = ['#3b82f6', '#10b981', '#ef4444', '#f59e0b'];
 
 const MarketStatusBreakdown = () => {
-  const { data: marketStatusData } = useMarketStatusQuery();
+  const { data: marketStatusData, isLoading } = useMarketStatusQuery();
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200 p-5 h-full">
+        <Skeleton className="h-7 w-48 mb-4" />
+        <div className="w-full h-80 flex flex-col items-center justify-center gap-6">
+          <Skeleton className="h-48 w-48 rounded-full" />
+          <div className="flex gap-4 w-full justify-center">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const data = (marketStatusData ?? []).map((item) => ({
-    name: item.market_status,
+    name: item.percentage !== undefined ? `${item.market_status} (${item.percentage}%)` : item.market_status,
     value: item.count,
   }));
 

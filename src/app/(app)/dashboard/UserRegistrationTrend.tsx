@@ -1,6 +1,7 @@
 'use client';
 import { useUserRegistrationTrendQuery } from '@/redux/features/dashboard/dashboard.api';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const formatDay = (day: string) => {
   const date = new Date(day);
@@ -12,7 +13,19 @@ const formatDay = (day: string) => {
 };
 
 const UserRegistrationTrend = () => {
-  const { data } = useUserRegistrationTrendQuery();
+  const { data, isLoading } = useUserRegistrationTrendQuery();
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 h-full">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <Skeleton className="h-7 w-48" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+        <Skeleton className="w-full h-72 sm:h-80" />
+      </div>
+    );
+  }
 
   const chartData = (data ?? []).map((item) => ({
     day: formatDay(item.day),

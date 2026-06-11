@@ -1,11 +1,35 @@
 "use client";
 import { useDashboardStats1Query, useDashboardStats2Query } from "@/redux/features/dashboard/dashboard.api";
 import { BookOpen, Building2, FileText, Star, TrendingUp, Users } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 const Stats = () => {
-  const { data: dashboardStats1 } = useDashboardStats1Query();
-  const { data: dashboardStats2 } = useDashboardStats2Query();
+  const { data: dashboardStats1, isLoading: isLoading1 } = useDashboardStats1Query();
+  const { data: dashboardStats2, isLoading: isLoading2 } = useDashboardStats2Query();
+
+  const isLoading = isLoading1 || isLoading2;
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 h-[126px] flex flex-col justify-between"
+          >
+            <div className="flex items-start justify-between mb-2">
+              <Skeleton className="h-10 w-10 rounded-lg" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-7 w-20" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   const stats = [
     {

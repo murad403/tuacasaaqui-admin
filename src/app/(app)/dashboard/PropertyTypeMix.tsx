@@ -2,6 +2,7 @@
 'use client';
 import { useTypePropertyTypeMixQuery } from '@/redux/features/dashboard/dashboard.api';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const COLORS = ['#0891b2', '#10b981', '#3b82f6', '#f59e0b', "#14B8A6", "#EF4444"];
 const LABEL_COLORS = ['#3B82F6', '#10B981', '#007595', '#009966', '#155DFC', '#E17100'];
@@ -28,7 +29,18 @@ const renderCustomLabel = (props: any) => {
 };
 
 const PropertyTypeMix = () => {
-  const { data: propertyTypeMixData } = useTypePropertyTypeMixQuery();
+  const { data: propertyTypeMixData, isLoading } = useTypePropertyTypeMixQuery();
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200 p-5 h-full">
+        <Skeleton className="h-7 w-48 mb-4" />
+        <div className="w-full h-80 flex items-center justify-center">
+          <Skeleton className="h-48 w-48 rounded-full" />
+        </div>
+      </div>
+    );
+  }
 
   const totalCount = (propertyTypeMixData ?? []).reduce((sum, item) => sum + item.count, 0);
 

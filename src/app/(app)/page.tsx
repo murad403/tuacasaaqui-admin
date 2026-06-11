@@ -5,9 +5,10 @@ import MarketStatusBreakdown from "./dashboard/MarketStatusBreakdown";
 import FeedbackRatingTrend from "./dashboard/FeedbackRatingTrend";
 import PropertyTypeMix from "./dashboard/PropertyTypeMix";
 import { useGetProfileQuery } from "@/redux/features/settings/settings.api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
-    const { data } = useGetProfileQuery(undefined);
+    const { data, isLoading } = useGetProfileQuery(undefined);
     // console.log(data)
     return (
         <div>
@@ -15,10 +16,18 @@ export default function DashboardPage() {
                 <h1 className="text-2xl font-bold text-title">
                     Dashboard Overview
                 </h1>
-                <p className="text-sm text-description mt-1">
-                    Welcome back, {data?.name || 'User'}. Here&apos;s what&apos;s happening with your
-                    location intelligence platform.
-                </p>
+                {isLoading ? (
+                    <div className="flex items-center gap-1.5 mt-1">
+                        <span className="text-sm text-description">Welcome back,</span>
+                        <Skeleton className="h-4 w-20" />
+                        <span className="text-sm text-description">. Here&apos;s what&apos;s happening with your location intelligence platform.</span>
+                    </div>
+                ) : (
+                    <p className="text-sm text-description mt-1">
+                        Welcome back, {data?.name || 'User'}. Here&apos;s what&apos;s happening with your
+                        location intelligence platform.
+                    </p>
+                )}
             </div>
 
             {/* Stat Cards */}
