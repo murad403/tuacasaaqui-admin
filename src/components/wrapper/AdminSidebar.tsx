@@ -48,9 +48,9 @@ export default function AdminSidebar() {
   return (
     <Sidebar collapsible="icon" className="bg-white">
       <SidebarHeader className="p-0">
-        <div className="flex items-center justify-center border-b h-16 border-gray-200 group-data-[collapsible=icon]:px-0">
-          <Link href="/" className="min-w-0 group-data-[collapsible=icon]:justify-center">
-            <Image src={logo} alt="TuacasaAqui" width={500} height={500} className="shrink-0 object-contain group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:h-8 size-20" />
+        <div className="flex items-center justify-center border-b h-16 border-gray-200 transition-all duration-200 ease-linear group-data-[collapsible=icon]:px-0">
+          <Link href="/" className="min-w-0 w-full flex items-center justify-center">
+            <Image src={logo} alt="TuacasaAqui" width={500} height={500} className="shrink-0 object-contain transition-all duration-200 ease-linear group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:h-8 size-20" />
           </Link>
         </div>
       </SidebarHeader>
@@ -64,12 +64,12 @@ export default function AdminSidebar() {
                   ? pathname === "/"
                   : pathname.startsWith(item.href);
               return (
-                <SidebarMenuItem key={item.href} className="px-3 mt-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+                <SidebarMenuItem key={item.href} className="w-full px-3 mt-2 flex justify-center transition-all duration-200 ease-linear group-data-[collapsible=icon]:px-0">
                   <SidebarMenuButton
                     asChild
                     isActive={isActive}
                     tooltip={item.title}
-                    className={` text-white
+                    className={`text-white transition-all duration-200 ease-linear group-data-[collapsible=icon]:p-1! group-data-[collapsible=icon]:justify-center
                     
                       ${isActive
                         ? "bg-linear-to-r from-button-start via-button-end to-button-start py-3 rounded-lg hover:text-white"
@@ -78,7 +78,7 @@ export default function AdminSidebar() {
                   >
                     <Link href={item.href}>
                       <item.icon className="size-6" />
-                      <span>{item.title}</span>
+                      <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -90,14 +90,14 @@ export default function AdminSidebar() {
 
       <SidebarFooter className="p-4">
         <SidebarMenu>
-          <SidebarMenuItem>
+          <SidebarMenuItem className="w-full px-3 transition-all duration-200 ease-linear group-data-[collapsible=icon]:px-0 flex justify-center">
             <SidebarMenuButton
               tooltip="Sign Out"
               onClick={handleLogout}
-              className="text-red-500 bg-red-100 cursor-pointer px-4 rounded-lg transition-colors duration-300 hover:bg-red-50 hover:text-red-600 py-3"
+              className="text-red-500 bg-red-100 cursor-pointer px-4 rounded-lg transition-all duration-200 ease-linear hover:bg-red-50 hover:text-red-600 py-3 group-data-[collapsible=icon]:p-1! group-data-[collapsible=icon]:justify-center"
             >
               <LogOut className="size-5" />
-              <span>Sign Out</span>
+              <span className="group-data-[collapsible=icon]:hidden">Sign Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
