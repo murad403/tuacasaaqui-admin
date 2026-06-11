@@ -12,6 +12,7 @@ import { ImagePlus, X, ArrowLeft } from "lucide-react";
 import RichTextEditor from "@/components/shared/RichTextEditor";
 import Link from "next/link";
 import { useGetNewsCategoriesQuery } from "@/redux/features/news/news.api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ArticleFormProps {
     defaultValues?: Partial<ArticleFormData>;
@@ -26,7 +27,7 @@ export default function ArticleForm({
     isEditing = false,
     isLoading = false,
 }: ArticleFormProps) {
-    const { data: categories = [] } = useGetNewsCategoriesQuery();
+    const { data: categories = [], isLoading: isCategoriesLoading } = useGetNewsCategoriesQuery();
 
     const { register, handleSubmit, control, setValue, formState: { errors } } = useForm<ArticleFormData>({
         resolver: zodResolver(articleSchema),
@@ -43,6 +44,10 @@ export default function ArticleForm({
     });
 
     const watchedValues = useWatch({ control });
+
+    if (isCategoriesLoading) {
+        return <ArticleFormSkeleton />;
+    }
 
     const previewContent = (watchedValues.content || "")
         .replace(/<[^>]*>/g, " ")
@@ -295,4 +300,78 @@ export default function ArticleForm({
         </div>
     </form>
     );
+}
+
+export function ArticleFormSkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse">
+      {/* Header Skeleton */}
+      <div className="flex items-center gap-3">
+        <Skeleton className="size-9 rounded-lg" />
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-40" />
+          <Skeleton className="h-4 w-80" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Cover Image Upload Skeleton */}
+          <div className="bg-white rounded-xl border p-6 space-y-3">
+            <Skeleton className="h-5 w-28" />
+            <Skeleton className="h-52 w-full rounded-lg" />
+          </div>
+
+          {/* Title Input Skeleton */}
+          <div className="bg-white rounded-xl border p-6 space-y-3">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-10 w-full rounded-lg" />
+          </div>
+
+          {/* Content Rich Editor Skeleton */}
+          <div className="bg-white rounded-xl border p-6 space-y-3">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-[300px] w-full rounded-lg" />
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Publishing Options Skeleton */}
+          <div className="bg-white rounded-xl border p-6 space-y-5">
+            <Skeleton className="h-5 w-36" />
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-10 w-full rounded-lg" />
+            </div>
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-10 w-full rounded-lg" />
+            </div>
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </div>
+
+          {/* Inline Article Preview Skeleton */}
+          <div className="bg-white rounded-xl border p-6 space-y-4">
+            <Skeleton className="h-5 w-32" />
+            <div className="rounded-lg border overflow-hidden">
+              <Skeleton className="h-36 w-full" />
+              <div className="p-3 space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button Skeleton */}
+          <Skeleton className="h-10 w-full rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
 }

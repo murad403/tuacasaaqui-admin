@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import ArticleForm from "@/components/shared/ArticleForm";
+import ArticleForm, { ArticleFormSkeleton } from "@/components/shared/ArticleForm";
 import type { ArticleFormData } from "@/validation/article.validation";
 import { useGetSingleNewsQuery, useUpdateNewsMutation } from "@/redux/features/news/news.api";
 import { toast } from "react-toastify";
@@ -53,7 +53,7 @@ function EditArticleContent() {
   };
 
   if (isFetching) {
-    return <div className="text-center py-12">Loading article...</div>;
+    return <ArticleFormSkeleton />;
   }
 
   return (

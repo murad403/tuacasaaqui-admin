@@ -11,6 +11,7 @@ import {
   useGetNewsCategoriesQuery,
   useGetNewsQuery,
 } from "@/redux/features/news/news.api";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -154,77 +155,94 @@ export default function NewsManagementPage() {
     }
   };
 
-  if (isLoading) {
-    return <div className="text-center py-12">Loading articles...</div>;
-  }
+
 
   return (
     <div>
       {/* Header */}
       <div className="flex md:items-center gap-4 md:flex-row flex-col justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-title">News Management</h1>
-          <p className="text-sm text-description mt-1">
-            Manage and organize your articles
-          </p>
-        </div>
+        {isLoading ? (
+          <div>
+            <Skeleton className="h-8 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+        ) : (
+          <div>
+            <h1 className="text-2xl font-bold text-title">News Management</h1>
+            <p className="text-sm text-description mt-1">
+              Manage and organize your articles
+            </p>
+          </div>
+        )}
         <div className="flex items-center gap-4">
-          <Button
-            onClick={() => router.push("/news-management/add-article")}
-            type="button"
-            className="flex items-center gap-2"
-          >
-            <Plus className="size-5" />
-            Create News
-          </Button>
+          {isLoading ? (
+            <Skeleton className="h-10 w-32 rounded-lg" />
+          ) : (
+            <Button
+              onClick={() => router.push("/news-management/add-article")}
+              type="button"
+              className="flex items-center gap-2"
+            >
+              <Plus className="size-5" />
+              Create News
+            </Button>
+          )}
         </div>
       </div>
 
       {/* Filters */}
-      <div className="mb-6 flex md:items-center gap-4 flex-col md:flex-row">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
-          <input
-            placeholder="Search articles..."
-            value={search}
+      {isLoading ? (
+        <div className="mb-6 flex md:items-center gap-4 flex-col md:flex-row">
+          <Skeleton className="w-full md:w-96 h-10 rounded-lg" />
+          <Skeleton className="w-32 h-10 rounded-lg" />
+          <Skeleton className="w-32 h-10 rounded-lg" />
+        </div>
+      ) : (
+        <div className="mb-6 flex md:items-center gap-4 flex-col md:flex-row">
+          <div className="relative w-full md:w-96">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
+            <input
+              placeholder="Search articles..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full h-10 rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-blue-200"
+            />
+          </div>
+
+          <select
+            value={categoryFilter}
             onChange={(e) => {
-              setSearch(e.target.value);
+              setCategoryFilter(e.target.value);
               setCurrentPage(1);
             }}
-            className="w-full h-10 rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-blue-200"
-          />
+            className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none capitalize"
+          >
+            <option value="all">All Categories</option>
+            {categoryOptions.map((category) => (
+              <option key={category.slug} value={category.slug} className="capitalize">
+                {category.name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none capitalize"
+          >
+            <option value="all">All Status</option>
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+          </select>
+
         </div>
-
-        <select
-          value={categoryFilter}
-          onChange={(e) => {
-            setCategoryFilter(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none capitalize"
-        >
-          <option value="all">All Categories</option>
-          {categoryOptions.map((category) => (
-            <option key={category.slug} value={category.slug} className="capitalize">
-              {category.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none capitalize"
-        >
-          <option value="all">All Status</option>
-          <option value="draft">Draft</option>
-          <option value="published">Published</option>
-        </select>
-
-      </div>
+      )}
 
       {/* Articles Table */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
@@ -240,7 +258,39 @@ export default function NewsManagementPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredArticles.length === 0 ? (
+            {isLoading ? (
+              [...Array(5)].map((_, i) => (
+                <tr key={i} className="border-b border-slate-200 align-top">
+                  <td className="px-5 py-4">
+                    <div className="flex items-start gap-3.5">
+                      <Skeleton className="w-[60px] h-[60px] rounded-md shrink-0" />
+                      <div className="w-full">
+                        <Skeleton className="h-5 w-3/4 mb-2 animate-pulse" />
+                        <Skeleton className="h-4 w-1/2 animate-pulse" />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-3 py-4">
+                    <Skeleton className="h-6 w-20 rounded-full animate-pulse" />
+                  </td>
+                  <td className="px-3 py-4">
+                    <Skeleton className="h-4 w-24 animate-pulse" />
+                  </td>
+                  <td className="px-3 py-4">
+                    <Skeleton className="h-4 w-20 animate-pulse" />
+                  </td>
+                  <td className="px-3 py-4">
+                    <Skeleton className="h-4 w-12 animate-pulse" />
+                  </td>
+                  <td className="px-5 py-4 text-right">
+                    <div className="flex items-center justify-end gap-3">
+                      <Skeleton className="size-4 rounded animate-pulse" />
+                      <Skeleton className="size-4 rounded animate-pulse" />
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : filteredArticles.length === 0 ? (
               <tr>
                 <td
                   colSpan={6}

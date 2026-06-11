@@ -228,7 +228,7 @@ export default function CategoriesManagementPage() {
               className="border"
             />
           </div>
-          <DialogFooter className="gap-4 sm:gap-0">
+          <DialogFooter className="gap-3 sm:gap-3">
             <button
               type="button"
               className="border border-slate-400 cursor-pointer py-2.5 px-4 w-full rounded-lg text-title hover:bg-slate-50 transition-colors"
@@ -269,7 +269,7 @@ export default function CategoriesManagementPage() {
               className="border"
             />
           </div>
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="gap-3 sm:gap-3">
             <button
               type="button"
               className="border border-slate-400 cursor-pointer py-2.5 px-4 w-full rounded-lg text-title hover:bg-slate-50 transition-colors"

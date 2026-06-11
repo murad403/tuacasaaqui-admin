@@ -13,20 +13,23 @@ export default function DashboardPage() {
     return (
         <div>
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-title">
-                    Dashboard Overview
-                </h1>
+
                 {isLoading ? (
-                    <div className="flex items-center gap-1.5 mt-1">
-                        <span className="text-sm text-description">Welcome back,</span>
-                        <Skeleton className="h-4 w-20" />
-                        <span className="text-sm text-description">. Here&apos;s what&apos;s happening with your location intelligence platform.</span>
+                    <div className=" mt-1">
+                        <Skeleton className="h-8 w-20" />
+                        <Skeleton className="h-4 w-40" />
                     </div>
                 ) : (
-                    <p className="text-sm text-description mt-1">
-                        Welcome back, {data?.name || 'User'}. Here&apos;s what&apos;s happening with your
-                        location intelligence platform.
-                    </p>
+                    <div>
+                        <h1 className="text-2xl font-bold text-title">
+                            Dashboard Overview
+                        </h1>
+                        <p className="text-sm text-description mt-1">
+                            Welcome back, {data?.name || 'User'}. Here&apos;s what&apos;s happening with your
+                            location intelligence platform.
+                        </p>
+                    </div>
+
                 )}
             </div>
 
