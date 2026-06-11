@@ -18,6 +18,11 @@ const nextConfig: NextConfig = {
         port: "7000",
         pathname: "/media/**",
       },
+      {
+        protocol: "https",
+        hostname: "tuacasaaqui.com",
+        pathname: "/**",
+      },
     ],
   },
 };
