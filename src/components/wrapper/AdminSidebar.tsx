@@ -12,7 +12,7 @@ import LogoutModal from "../modal/LogoutModal";
 const navItems = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard },
   { title: "News Management", href: "/news-management", icon: Newspaper },
-  { title: "Category", href: "/category", icon: List },
+  { title: "Categories Management", href: "/categories-management", icon: List },
   { title: "Guides", href: "/guides", icon: BookOpen },
   { title: "FAQ's", href: "/faq", icon: CircleQuestionMark },
   { title: "Feedback", href: "/feedback", icon: MessageSquare },

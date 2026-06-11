@@ -1,13 +1,12 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Plus, Search, Pencil, Trash2, Eye, CircleCheck, Clock3, Newspaper } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, CircleCheck, Clock3 } from "lucide-react";
 import DeleteArticleModal from "@/components/modal/DeleteArticleModal";
 import CustomPagination from "@/components/shared/CustomPagination";
 import {
-  useCreateNewsCategoryMutation,
   useDeleteNewsMutation,
   useGetNewsCategoriesQuery,
   useGetNewsQuery,
@@ -64,8 +63,6 @@ export default function NewsManagementPage() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [deleteModal, setDeleteModal] = useState<{
@@ -90,7 +87,6 @@ export default function NewsManagementPage() {
   const { data: newsData, isLoading } = useGetNewsQuery(queryParams);
   const { data: newsCategories = [] } = useGetNewsCategoriesQuery();
   const [deleteNewsMutation] = useDeleteNewsMutation();
-  const [createNewsCategoryMutation, { isLoading: isCreatingCategory }] = useCreateNewsCategoryMutation();
 
   const articles = useMemo(() => {
     if (!newsData) return [];
@@ -143,24 +139,7 @@ export default function NewsManagementPage() {
     setDeleteModal({ open: true, article });
   };
 
-  const closeCategoryModal = () => {
-    setIsCategoryModalOpen(false);
-    setNewCategoryName("");
-  };
 
-  const handleCreateCategory = async () => {
-    const name = newCategoryName.trim();
-    if (!name) return;
-
-    try {
-      const response = await createNewsCategoryMutation({ name }).unwrap();
-      toast.success(response.message || "Category created successfully", { position: "top-right" });
-      closeCategoryModal();
-    } catch (error: any) {
-      const message = error?.data?.detail || error?.data?.message || "Failed to create category. Please try again.";
-      toast.error(message, { position: "top-right" });
-    }
-  };
 
   const confirmDelete = async () => {
     if (deleteModal.article) {
@@ -191,23 +170,13 @@ export default function NewsManagementPage() {
         </div>
         <div className="flex items-center gap-4">
           <Button
-            type="button"
-            onClick={() => setIsCategoryModalOpen(true)}
-            className="flex items-center gap-2 whitespace-nowrap"
-          >
-            <Newspaper className="size-5" />
-            Add News Category
-          </Button>
-
-          <Button
-          onClick={() => router.push("/news-management/add-article")}
+            onClick={() => router.push("/news-management/add-article")}
             type="button"
             className="flex items-center gap-2"
           >
             <Plus className="size-5" />
             Create News
           </Button>
-
         </div>
       </div>
 
@@ -384,43 +353,6 @@ export default function NewsManagementPage() {
         articleTitle={deleteModal.article?.title || ""}
         onConfirm={confirmDelete}
       />
-
-      <Dialog open={isCategoryModalOpen} onOpenChange={(open) => (open ? setIsCategoryModalOpen(true) : closeCategoryModal())}>
-        <DialogContent className="max-w-md" showCloseButton={false}>
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-title">Add News Category</DialogTitle>
-          </DialogHeader>
-          <div>
-            <label className="block text-sm font-medium text-title mb-2">
-              Category Name
-            </label>
-            <Input
-              value={newCategoryName}
-              onChange={(e) => setNewCategoryName(e.target.value)}
-              placeholder="Enter category name"
-              className="border"
-            />
-          </div>
-          <DialogFooter>
-            <button
-              type="button"
-              className="border border-slate-400 cursor-pointer py-2.5 px-4 w-full rounded-lg text-title"
-              onClick={closeCategoryModal}
-            >
-              Cancel
-            </button>
-            <Button
-              type="button"
-              onClick={handleCreateCategory}
-              disabled={!newCategoryName.trim() || isCreatingCategory}
-              className="text-white"
-              style={{ backgroundColor: "#214572" }}
-            >
-              {isCreatingCategory ? "Creating..." : "Create"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

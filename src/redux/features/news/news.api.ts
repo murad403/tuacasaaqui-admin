@@ -102,7 +102,46 @@ const newsApi = baseApi2.injectEndpoints({
             },
             providesTags: ["news"]
         }),
+        getNewsCategoryDetails: builder.query({
+            query: (id) => {
+                return {
+                    url: `/contents/news-categories/${id}/`,
+                    method: "GET"
+                };
+            },
+            providesTags: ["news"]
+        }),
+        updateNewsCategory: builder.mutation({
+            query: ({id, data}) => {
+                return {
+                    url: `/contents/news-categories/${id}/update/`,
+                    method: "PATCH",
+                    body: data
+                };
+            },
+            invalidatesTags: ["news"]
+        }),
+        deleteNewsCategory: builder.mutation({
+            query: (id) => {
+                return {
+                    url: `/contents/news-categories/${id}/delete/`,
+                    method: "DELETE"
+                };
+            },
+            invalidatesTags: ["news"]
+        }),
     })
 });
 
-export const { useGetNewsQuery, useCreateNewsMutation, useGetSingleNewsQuery, useDeleteNewsMutation, useUpdateNewsMutation, useGetNewsCategoriesQuery, useCreateNewsCategoryMutation } = newsApi;
+export const {
+    useGetNewsQuery,
+    useCreateNewsMutation,
+    useGetSingleNewsQuery,
+    useDeleteNewsMutation,
+    useUpdateNewsMutation,
+    useGetNewsCategoriesQuery,
+    useCreateNewsCategoryMutation,
+    useGetNewsCategoryDetailsQuery,
+    useUpdateNewsCategoryMutation,
+    useDeleteNewsCategoryMutation,
+} = newsApi;

@@ -16,10 +16,10 @@ export default function AdminTopbar() {
       <SidebarTrigger className="-ml-1" />
       <div className="flex-1" />
       <div className="flex items-center gap-4">
-        <button className="relative text-gray-500 hover:text-gray-700">
+        {/* <button className="relative text-gray-500 hover:text-gray-700">
           <Bell className="size-5" />
           <span className="absolute -top-1 -right-1 size-2 bg-red-500 rounded-full" />
-        </button>
+        </button> */}
         <div className="flex items-center gap-2.5">
           <div className="hidden sm:block text-right">
             <p className="text-sm font-semibold text-gray-900 leading-tight">
