@@ -23,6 +23,11 @@ const nextConfig: NextConfig = {
         hostname: "tuacasaaqui.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "opendoor-integrationtechnologies.com",
+        pathname: "/**",
+      },
     ],
   },
 };
