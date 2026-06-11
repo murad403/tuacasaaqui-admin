@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import CustomPagination from "@/components/shared/CustomPagination";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CategoriesManagementPage() {
   const [search, setSearch] = useState("");
@@ -108,107 +109,153 @@ export default function CategoriesManagementPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex md:items-center gap-4 md:flex-row flex-col justify-between">
+        {isLoading ? (
+          <div>
+            <Skeleton className="h-8 w-48 mb-2 animate-pulse" />
+            <Skeleton className="h-4 w-64 animate-pulse" />
+          </div>
+        ) : (
+          <div>
+            <h1 className="text-2xl font-bold text-title">Categories Management</h1>
+            <p className="text-sm text-description mt-1">
+              Manage and organize your news categories
+            </p>
+          </div>
+        )}
         <div>
-          <h1 className="text-2xl font-bold text-title">Categories Management</h1>
-          <p className="text-sm text-description mt-1">
-            Manage and organize your news categories
-          </p>
-        </div>
-        <div>
-          <Button
-            type="button"
-            onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-2"
-            style={{ backgroundColor: "#214572" }}
-          >
-            <Plus className="size-5" />
-            Add Category
-          </Button>
+          {isLoading ? (
+            <Skeleton className="h-10 w-32 rounded-lg animate-pulse" />
+          ) : (
+            <Button
+              type="button"
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2"
+              style={{ backgroundColor: "#214572" }}
+            >
+              <Plus className="size-5" />
+              Add Category
+            </Button>
+          )}
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
-          <input
-            placeholder="Search categories..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="w-full h-10 rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-blue-200"
-          />
+      {isLoading ? (
+        <div className="flex items-center gap-4">
+          <Skeleton className="w-full md:w-96 h-10 rounded-lg animate-pulse" />
         </div>
-      </div>
+      ) : (
+        <div className="flex items-center gap-4">
+          <div className="relative w-full md:w-96">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
+            <input
+              placeholder="Search categories..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full h-10 rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-blue-200"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Categories Table */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
-        {isLoading ? (
-          <div className="text-center py-12 text-description">Loading categories...</div>
-        ) : (
-          <>
-            <table className="w-full min-w-[600px]">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
+        <table className="w-full min-w-[600px]">
+          <thead>
+            <tr className="bg-slate-50 border-b border-slate-200">
+              {isLoading ? (
+                <>
+                  <th className="px-5 py-4 text-left w-16"><Skeleton className="h-4 w-8 animate-pulse" /></th>
+                  <th className="px-5 py-4 text-left"><Skeleton className="h-4 w-28 animate-pulse" /></th>
+                  <th className="px-5 py-4 text-left"><Skeleton className="h-4 w-12 animate-pulse" /></th>
+                  <th className="px-5 py-4 text-right w-32"><Skeleton className="h-4 w-16 ml-auto animate-pulse" /></th>
+                </>
+              ) : (
+                <>
                   <th className="font-semibold text-description text-left px-5 py-4 text-sm w-16">ID</th>
                   <th className="font-semibold text-description text-left px-5 py-4 text-sm">Category Name</th>
                   <th className="font-semibold text-description text-left px-5 py-4 text-sm">Slug</th>
                   <th className="font-semibold text-description text-right px-5 py-4 text-sm w-32">Actions</th>
+                </>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              [...Array(5)].map((_, i) => (
+                <tr key={i} className="border-b border-slate-200 last:border-b-0">
+                  <td className="px-5 py-4">
+                    <Skeleton className="h-4 w-8 animate-pulse" />
+                  </td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="size-4 rounded animate-pulse" />
+                      <Skeleton className="h-5 w-40 animate-pulse" />
+                    </div>
+                  </td>
+                  <td className="px-5 py-4">
+                    <Skeleton className="h-4 w-28 animate-pulse" />
+                  </td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center justify-end gap-3">
+                      <Skeleton className="size-4 rounded animate-pulse" />
+                      <Skeleton className="size-4 rounded animate-pulse" />
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredCategories.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="text-center py-12 text-description">
-                      No categories found
-                    </td>
-                  </tr>
-                ) : (
-                  paginatedCategories.map((category) => (
-                    <tr key={category.id} className="hover:bg-slate-50/70 border-b border-slate-200 last:border-b-0">
-                      <td className="px-5 py-4 text-sm text-description font-mono">{category.id}</td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-2">
-                          <FolderOpen className="size-4 text-slate-400" />
-                          <span className="font-medium text-title text-[15px]">{category.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-5 py-4 text-sm text-description font-mono">{category.slug}</td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center justify-end gap-3">
-                          <button
-                            type="button"
-                            onClick={() => setEditModal({ open: true, id: category.id, name: category.name })}
-                            className="cursor-pointer text-description hover:text-title transition-colors"
-                          >
-                            <Pencil size={15} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDeleteModal({ open: true, id: category.id, name: category.name })}
-                            className="cursor-pointer text-red-500 hover:text-red-600 transition-colors"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+              ))
+            ) : filteredCategories.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="text-center py-12 text-description">
+                  No categories found
+                </td>
+              </tr>
+            ) : (
+              paginatedCategories.map((category) => (
+                <tr key={category.id} className="hover:bg-slate-50/70 border-b border-slate-200 last:border-b-0">
+                  <td className="px-5 py-4 text-sm text-description font-mono">{category.id}</td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-2">
+                      <FolderOpen className="size-4 text-slate-400" />
+                      <span className="font-medium text-title text-[15px]">{category.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-4 text-sm text-description font-mono">{category.slug}</td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center justify-end gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setEditModal({ open: true, id: category.id, name: category.name })}
+                        className="cursor-pointer text-description hover:text-title transition-colors"
+                      >
+                        <Pencil size={15} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteModal({ open: true, id: category.id, name: category.name })}
+                        className="cursor-pointer text-red-500 hover:text-red-600 transition-colors"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
 
-            <CustomPagination
-              currentPage={safeCurrentPage}
-              totalItems={filteredCategories.length}
-              pageSize={pageSize}
-              onPageChange={setCurrentPage}
-              itemLabel="categories"
-            />
-          </>
-        )}
+        <CustomPagination
+          currentPage={safeCurrentPage}
+          totalItems={filteredCategories.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="categories"
+          isLoading={isLoading}
+        />
       </div>
 
       {/* Create Dialog */}

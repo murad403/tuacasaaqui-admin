@@ -249,12 +249,25 @@ export default function NewsManagementPage() {
         <table className="w-full min-w-195">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
-              <th className="font-semibold text-description text-left px-5 py-4 text-sm">Article</th>
-              <th className="font-semibold text-description text-left px-3 py-4 text-sm">Status</th>
-              <th className="font-semibold text-description text-left px-3 py-4 text-sm">Author</th>
-              <th className="font-semibold text-description text-left px-3 py-4 text-sm">Date</th>
-              <th className="font-semibold text-description text-left px-3 py-4 text-sm">Views</th>
-              <th className="font-semibold text-description text-right px-5 py-4 text-sm">Actions</th>
+              {isLoading ? (
+                <>
+                  <th className="px-5 py-4 text-left"><Skeleton className="h-4 w-16 animate-pulse" /></th>
+                  <th className="px-3 py-4 text-left"><Skeleton className="h-4 w-12 animate-pulse" /></th>
+                  <th className="px-3 py-4 text-left"><Skeleton className="h-4 w-12 animate-pulse" /></th>
+                  <th className="px-3 py-4 text-left"><Skeleton className="h-4 w-10 animate-pulse" /></th>
+                  <th className="px-3 py-4 text-left"><Skeleton className="h-4 w-10 animate-pulse" /></th>
+                  <th className="px-5 py-4 text-right"><Skeleton className="h-4 w-12 ml-auto animate-pulse" /></th>
+                </>
+              ) : (
+                <>
+                  <th className="font-semibold text-description text-left px-5 py-4 text-sm">Article</th>
+                  <th className="font-semibold text-description text-left px-3 py-4 text-sm">Status</th>
+                  <th className="font-semibold text-description text-left px-3 py-4 text-sm">Author</th>
+                  <th className="font-semibold text-description text-left px-3 py-4 text-sm">Date</th>
+                  <th className="font-semibold text-description text-left px-3 py-4 text-sm">Views</th>
+                  <th className="font-semibold text-description text-right px-5 py-4 text-sm">Actions</th>
+                </>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -393,6 +406,7 @@ export default function NewsManagementPage() {
           pageSize={pageSize}
           onPageChange={setCurrentPage}
           itemLabel="articles"
+          isLoading={isLoading}
         />
       </div>
 

@@ -4,6 +4,7 @@ import React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { Skeleton } from "@/components/ui/skeleton"
 
 type CustomPaginationProps = {
   currentPage: number
@@ -13,6 +14,7 @@ type CustomPaginationProps = {
   siblingCount?: number
   className?: string
   itemLabel?: string
+  isLoading?: boolean
 }
 
 const DOTS = "dots" as const
@@ -70,7 +72,33 @@ const CustomPagination = ({
   siblingCount = 1,
   className,
   itemLabel = "items",
+  isLoading = false,
 }: CustomPaginationProps) => {
+  if (isLoading) {
+    return (
+      <div
+        className={cn(
+          "flex flex-col gap-4 border-t border-slate-200 px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between animate-pulse",
+          className
+        )}
+      >
+        <div className="flex flex-col gap-3 text-sm text-description sm:flex-row sm:items-center sm:justify-between lg:justify-start">
+          <Skeleton className="h-4 w-48 rounded" />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+          <Skeleton className="h-9 w-20 rounded-lg" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-9 w-9 rounded-lg" />
+            <Skeleton className="h-9 w-9 rounded-lg" />
+            <Skeleton className="h-9 w-9 rounded-lg" />
+          </div>
+          <Skeleton className="h-9 w-20 rounded-lg" />
+        </div>
+      </div>
+    )
+  }
+
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
   const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages)
   const startItem = totalItems === 0 ? 0 : (safeCurrentPage - 1) * pageSize + 1
