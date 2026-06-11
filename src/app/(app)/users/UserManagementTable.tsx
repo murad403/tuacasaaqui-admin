@@ -3,6 +3,7 @@ import CustomPagination from '@/components/shared/CustomPagination'
 import { CircleCheck, Loader2, Search, UserRound } from 'lucide-react'
 import React, { useMemo, useState } from 'react'
 import { useGetUserQuery } from '@/redux/features/user/user.api'
+import { Skeleton } from '@/components/ui/skeleton'
 import Image from 'next/image'
 
 const avatarColors = [
@@ -59,43 +60,68 @@ const UserManagementTable = () => {
 
     return (
         <div>
-            <div className="mb-6 flex items-center gap-4 flex-col md:flex-row">
-
-                <div className="relative w-full md:w-96">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
-                    <input
-                        placeholder="Search users..."
-                        value={search}
-                        onChange={(e) => {
-                            setSearch(e.target.value);
-                            setCurrentPage(1);
-                        }}
-                        className="w-full h-10 rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-blue-200"
-                    />
+            {isLoading ? (
+                <div className="mb-6 flex items-center gap-4 flex-col md:flex-row">
+                    <Skeleton className="w-full md:w-96 h-10 rounded-lg animate-pulse" />
                 </div>
-
-            </div>
+            ) : (
+                <div className="mb-6 flex items-center gap-4 flex-col md:flex-row">
+                    <div className="relative w-full md:w-96">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
+                        <input
+                            placeholder="Search users..."
+                            value={search}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="w-full h-10 rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-blue-200"
+                        />
+                    </div>
+                </div>
+            )}
 
 
             <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
                 <table className="w-full min-w-180">
                     <thead>
                         <tr className="bg-slate-50 border-b border-slate-200">
-                            <th className="font-semibold text-description text-left px-5 py-4 text-sm">User</th>
-                            <th className="font-semibold text-description text-left px-3 py-4 text-sm">Status</th>
-                            <th className="font-semibold text-description text-left px-3 py-4 text-sm">Joined Date</th>
+                            {isLoading ? (
+                                <>
+                                    <th className="px-5 py-4 text-left"><Skeleton className="h-4 w-16 animate-pulse" /></th>
+                                    <th className="px-3 py-4 text-left"><Skeleton className="h-4 w-12 animate-pulse" /></th>
+                                    <th className="px-3 py-4 text-left"><Skeleton className="h-4 w-20 animate-pulse" /></th>
+                                </>
+                            ) : (
+                                <>
+                                    <th className="font-semibold text-description text-left px-5 py-4 text-sm">User</th>
+                                    <th className="font-semibold text-description text-left px-3 py-4 text-sm">Status</th>
+                                    <th className="font-semibold text-description text-left px-3 py-4 text-sm">Joined Date</th>
+                                </>
+                            )}
                         </tr>
                     </thead>
                     <tbody>
                         {isLoading ? (
-                            <tr>
-                                <td colSpan={4} className="text-center py-12 text-description">
-                                    <div className="inline-flex items-center gap-2">
-                                        <Loader2 className="size-4 animate-spin" />
-                                        Loading users...
-                                    </div>
-                                </td>
-                            </tr>
+                            [...Array(5)].map((_, i) => (
+                                <tr key={i} className="border-b border-slate-200 last:border-b-0 align-top">
+                                    <td className="px-5 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <Skeleton className="size-10 rounded-full animate-pulse" />
+                                            <div>
+                                                <Skeleton className="h-4 w-24 mb-1 animate-pulse" />
+                                                <Skeleton className="h-3 w-36 animate-pulse" />
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-3 py-4">
+                                        <Skeleton className="h-6 w-16 rounded-full animate-pulse" />
+                                    </td>
+                                    <td className="px-3 py-4">
+                                        <Skeleton className="h-4 w-20 animate-pulse" />
+                                    </td>
+                                </tr>
+                            ))
                         ) : isError ? (
                             <tr>
                                 <td colSpan={4} className="text-center py-12 text-red-600">
@@ -152,6 +178,7 @@ const UserManagementTable = () => {
                     pageSize={pageSize}
                     onPageChange={setCurrentPage}
                     itemLabel="users"
+                    isLoading={isLoading}
                 />
             </div>
         </div>

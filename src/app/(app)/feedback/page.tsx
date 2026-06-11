@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2, MessageSquareCheck, Star, Trash2 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import CustomPagination from '@/components/shared/CustomPagination'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   type FeedbackCategory,
   type GetFeedbackParams,
@@ -136,76 +137,92 @@ const FeedbackManagementPage = () => {
     <div className="w-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-title">Feedback Management</h1>
-          <p className="text-sm text-description mt-1">
-            View and manage user feedback from the mobile app
-          </p>
-        </div>
+        {isFeedbackLoading ? (
+          <div>
+            <Skeleton className="h-8 w-48 mb-2 animate-pulse" />
+            <Skeleton className="h-4 w-96 animate-pulse" />
+          </div>
+        ) : (
+          <div>
+            <h1 className="text-2xl font-bold text-title">Feedback Management</h1>
+            <p className="text-sm text-description mt-1">
+              View and manage user feedback from the mobile app
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Filters */}
-      <div className="flex items-center flex-wrap gap-4 mb-8 pb-6 border-b">
-        <span style={{ color: '#64748B' }} className="text-sm font-medium">
-          Filters:
-        </span>
-        <Select
-          value={ratingFilter}
-          onValueChange={(value) => {
-            setRatingFilter(value as RatingFilter)
-            setCurrentPage(1)
-          }}
-        >
-          <SelectTrigger className="w-40 border">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Ratings</SelectItem>
-            <SelectItem value="5">5 Stars</SelectItem>
-            <SelectItem value="4">4 Stars</SelectItem>
-            <SelectItem value="3">3 Stars</SelectItem>
-            <SelectItem value="2">2 Stars</SelectItem>
-            <SelectItem value="1">1 Star</SelectItem>
-          </SelectContent>
-        </Select>
+      {isFeedbackLoading ? (
+        <div className="flex items-center flex-wrap gap-4 mb-8 pb-6 border-b">
+          <Skeleton className="h-4 w-12 rounded animate-pulse" />
+          <Skeleton className="h-10 w-40 rounded-lg animate-pulse" />
+          <Skeleton className="h-10 w-40 rounded-lg animate-pulse" />
+          <Skeleton className="h-10 w-40 rounded-lg animate-pulse" />
+        </div>
+      ) : (
+        <div className="flex items-center flex-wrap gap-4 mb-8 pb-6 border-b">
+          <span style={{ color: '#64748B' }} className="text-sm font-medium">
+            Filters:
+          </span>
+          <Select
+            value={ratingFilter}
+            onValueChange={(value) => {
+              setRatingFilter(value as RatingFilter)
+              setCurrentPage(1)
+            }}
+          >
+            <SelectTrigger className="w-40 border">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Ratings</SelectItem>
+              <SelectItem value="5">5 Stars</SelectItem>
+              <SelectItem value="4">4 Stars</SelectItem>
+              <SelectItem value="3">3 Stars</SelectItem>
+              <SelectItem value="2">2 Stars</SelectItem>
+              <SelectItem value="1">1 Star</SelectItem>
+            </SelectContent>
+          </Select>
 
-        <Select
-          value={categoryFilter}
-          onValueChange={(value) => {
-            setCategoryFilter(value as CategoryFilter)
-            setCurrentPage(1)
-          }}
-        >
-          <SelectTrigger className="w-40 border">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="bug_report">Bug</SelectItem>
-            <SelectItem value="feature_request">Feature</SelectItem>
-            <SelectItem value="ux_feedback">UX</SelectItem>
-            <SelectItem value="data_issue">Data</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
+          <Select
+            value={categoryFilter}
+            onValueChange={(value) => {
+              setCategoryFilter(value as CategoryFilter)
+              setCurrentPage(1)
+            }}
+          >
+            <SelectTrigger className="w-40 border">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="bug_report">Bug</SelectItem>
+              <SelectItem value="feature_request">Feature</SelectItem>
+              <SelectItem value="ux_feedback">UX</SelectItem>
+              <SelectItem value="data_issue">Data</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
 
-        <Select
-          value={statusFilter}
-          onValueChange={(value) => {
-            setStatusFilter(value as StatusFilter)
-            setCurrentPage(1)
-          }}
-        >
-          <SelectTrigger className="w-40 border">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="resolved">Resolved</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+          <Select
+            value={statusFilter}
+            onValueChange={(value) => {
+              setStatusFilter(value as StatusFilter)
+              setCurrentPage(1)
+            }}
+          >
+            <SelectTrigger className="w-40 border">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="resolved">Resolved</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -213,134 +230,182 @@ const FeedbackManagementPage = () => {
           <p style={{ color: '#64748B' }} className="text-sm font-medium">
             Total Feedback
           </p>
-          <p className="text-3xl font-bold mt-2" style={{ color: '#1A202C' }}>
-            {isStatsLoading ? '-' : (stats?.total_feedback ?? 0)}
-          </p>
+          {isStatsLoading ? (
+            <Skeleton className="h-8 w-16 mt-2 animate-pulse" />
+          ) : (
+            <p className="text-3xl font-bold mt-2" style={{ color: '#1A202C' }}>
+              {stats?.total_feedback ?? 0}
+            </p>
+          )}
         </div>
 
         <div className="bg-white border rounded-lg p-6">
           <p style={{ color: '#64748B' }} className="text-sm font-medium">
             Pending
           </p>
-          <p className="text-3xl font-bold mt-2 text-orange-600">
-            {isStatsLoading ? '-' : (stats?.pending ?? 0)}
-          </p>
+          {isStatsLoading ? (
+            <Skeleton className="h-8 w-16 mt-2 animate-pulse" />
+          ) : (
+            <p className="text-3xl font-bold mt-2 text-orange-600">
+              {stats?.pending ?? 0}
+            </p>
+          )}
         </div>
 
         <div className="bg-white border rounded-lg p-6">
           <p style={{ color: '#64748B' }} className="text-sm font-medium">
             Resolved
           </p>
-          <p className="text-3xl font-bold mt-2 text-green-600">
-            {isStatsLoading ? '-' : (stats?.resolved ?? 0)}
-          </p>
+          {isStatsLoading ? (
+            <Skeleton className="h-8 w-16 mt-2 animate-pulse" />
+          ) : (
+            <p className="text-3xl font-bold mt-2 text-green-600">
+              {stats?.resolved ?? 0}
+            </p>
+          )}
         </div>
 
         <div className="bg-white border rounded-lg p-6">
           <p style={{ color: '#64748B' }} className="text-sm font-medium">
             Average Rating
           </p>
-          <p className="text-3xl font-bold mt-2 text-blue-600">
-            {isStatsLoading ? '-' : (stats?.average_rating ?? 0)}
-          </p>
+          {isStatsLoading ? (
+            <Skeleton className="h-8 w-16 mt-2 animate-pulse" />
+          ) : (
+            <p className="text-3xl font-bold mt-2 text-blue-600">
+              {stats?.average_rating ?? 0}
+            </p>
+          )}
         </div>
       </div>
 
       {/* Table */}
       <div className="bg-white rounded-lg border overflow-hidden">
         <div className="w-full overflow-x-auto">
-        <table className="w-full min-w-225">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#1A202C' }}>
-                Rating
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#1A202C' }}>
-                Category
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#1A202C' }}>
-                Message
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#1A202C' }}>
-                Status
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#1A202C' }}>
-                Date
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#1A202C' }}>
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {isFeedbackLoading ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-10 text-center">
-                  <div className="inline-flex items-center gap-2 text-description">
-                    <Loader2 className="size-4 animate-spin" />
-                    Loading feedback...
-                  </div>
-                </td>
-              </tr>
-            ) : isFeedbackError ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-red-600">
-                  Failed to load feedback
-                </td>
-              </tr>
-            ) : feedbacks.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-8 text-center" style={{ color: '#64748B' }}>
-                  No feedback found
-                </td>
-              </tr>
-            ) : (
-              paginatedFeedbacks.map((feedback) => (
-                <tr key={feedback.id} className="border-t hover:bg-gray-50 transition">
-                  <td className="px-6 py-4">{renderStars(feedback.rating)}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(feedback.category)}`}>
-                      {getCategoryLabel(feedback.category)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: '#1A202C' }}>
-                    {feedback.message}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium" style={{ color: getStatusColor(feedback.is_resolved) }}>
-                    {feedback.is_resolved ? 'Resolved' : 'Pending'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: '#64748B' }}>
-                    {formatDate(feedback.created_at)}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      {!feedback.is_resolved ? (
-                        <button
-                          onClick={() => handleResolve(feedback.id)}
-                          disabled={isResolving}
-                          className="text-xs px-4 whitespace-nowrap py-1.5 rounded-sm bg-linear-to-r from-button-start via-button-end to-button-start text-white flex items-center gap-2 cursor-pointer"
-                          style={{ backgroundColor: '#214572' }}
-                        >
-                          <MessageSquareCheck className='size-4' />
-                          Mark Resolved
-                        </button>
-                      ) : null}
-
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(feedback.id)}
-                        disabled={isDeleting}
-                        className="p-2 rounded-md text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <Trash2 className="size-4" />
-                      </button>
-                    </div>
+          <table className="w-full min-w-225">
+            <thead className="bg-gray-50 border-b">
+              {isFeedbackLoading ? (
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-semibold"><Skeleton className="h-4 w-16 animate-pulse" /></th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold"><Skeleton className="h-4 w-16 animate-pulse" /></th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold"><Skeleton className="h-4 w-32 animate-pulse" /></th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold"><Skeleton className="h-4 w-16 animate-pulse" /></th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold"><Skeleton className="h-4 w-16 animate-pulse" /></th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold"><Skeleton className="h-4 w-16 animate-pulse" /></th>
+                </tr>
+              ) : (
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#1A202C' }}>
+                    Rating
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#1A202C' }}>
+                    Category
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#1A202C' }}>
+                    Message
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#1A202C' }}>
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#1A202C' }}>
+                    Date
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#1A202C' }}>
+                    Actions
+                  </th>
+                </tr>
+              )}
+            </thead>
+            <tbody>
+              {isFeedbackLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <tr key={i} className="border-t">
+                    <td className="px-6 py-4">
+                      <div className="flex gap-1 animate-pulse">
+                        {[...Array(5)].map((_, idx) => (
+                          <Skeleton key={idx} className="size-4 rounded-full animate-pulse" />
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-5 w-16 rounded-full animate-pulse" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-4 w-3/4 animate-pulse" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-4 w-16 animate-pulse" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-4 w-20 animate-pulse" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2">
+                        <Skeleton className="h-8 w-24 rounded animate-pulse" />
+                        <Skeleton className="size-8 rounded animate-pulse" />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : isFeedbackError ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-8 text-center text-red-600">
+                    Failed to load feedback
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : feedbacks.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-8 text-center" style={{ color: '#64748B' }}>
+                    No feedback found
+                  </td>
+                </tr>
+              ) : (
+                paginatedFeedbacks.map((feedback) => (
+                  <tr key={feedback.id} className="border-t hover:bg-gray-50 transition">
+                    <td className="px-6 py-4">{renderStars(feedback.rating)}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(feedback.category)}`}>
+                        {getCategoryLabel(feedback.category)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: '#1A202C' }}>
+                      {feedback.message}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium" style={{ color: getStatusColor(feedback.is_resolved) }}>
+                      {feedback.is_resolved ? 'Resolved' : 'Pending'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: '#64748B' }}>
+                      {formatDate(feedback.created_at)}
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        {!feedback.is_resolved ? (
+                          <button
+                            onClick={() => handleResolve(feedback.id)}
+                            disabled={isResolving}
+                            className="text-xs px-4 whitespace-nowrap py-1.5 rounded-sm bg-linear-to-r from-button-start via-button-end to-button-start text-white flex items-center gap-2 cursor-pointer"
+                            style={{ backgroundColor: '#214572' }}
+                          >
+                            <MessageSquareCheck className='size-4' />
+                            Mark Resolved
+                          </button>
+                        ) : null}
+
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(feedback.id)}
+                          disabled={isDeleting}
+                          className="p-2 rounded-md text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
 
         <CustomPagination
@@ -349,6 +414,7 @@ const FeedbackManagementPage = () => {
           pageSize={pageSize}
           onPageChange={setCurrentPage}
           itemLabel="feedback"
+          isLoading={isFeedbackLoading}
         />
       </div>
     </div>

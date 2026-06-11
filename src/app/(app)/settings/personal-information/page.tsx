@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useGetProfileQuery, useUpdateProfileMutation } from "@/redux/features/settings/settings.api";
 import { toast } from "react-toastify";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const schema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -21,7 +22,7 @@ export default function PersonalInformationPage() {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [notifications, setNotifications] = useState(true);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const { data: profile } = useGetProfileQuery();
+    const { data: profile, isLoading } = useGetProfileQuery();
     const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
 
     const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormData>({
@@ -93,66 +94,87 @@ export default function PersonalInformationPage() {
                     <UserCircle className="size-5 text-description" />
                     <h2 className="font-semibold text-title">Admin Profile</h2>
                 </div>
-                <form onSubmit={handleSubmit(onSubmit)}>
+                {isLoading ? (
                     <div className="flex items-start gap-5">
-                        {/* Avatar */}
+                        {/* Avatar Skeleton */}
                         <div className="relative shrink-0">
-                            <div
-                                className="size-14 rounded-xl bg-heading flex items-center justify-center text-white text-2xl font-bold overflow-hidden cursor-pointer"
-                                onClick={() => fileInputRef.current?.click()}
-                            >
-                                {avatar ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img src={avatar} alt="avatar" className="size-full object-cover" />
-                                ) : (
-                                    (name).charAt(0).toUpperCase()
-                                )}
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => fileInputRef.current?.click()}
-                                className="absolute -bottom-1.5 -right-1.5 bg-white border border-gray-200 rounded-full p-1 shadow-sm hover:bg-gray-50 transition"
-                            >
-                                <Camera className="size-3 text-heading" />
-                            </button>
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={handleImageChange}
-                            />
+                            <Skeleton className="size-14 rounded-xl animate-pulse" />
                         </div>
-
-                        {/* Fields */}
+                        {/* Fields Skeletons */}
                         <div className="flex-1 space-y-4">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-900 mb-1.5">Full Name</label>
-                                <input
-                                    type="text"
-                                    {...register("name")}
-                                    className={inputClass}
-                                    placeholder="Your name"
-                                />
-                                {errors.name && (
-                                    <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
-                                )}
+                                <Skeleton className="h-4 w-20 mb-1.5 animate-pulse" />
+                                <Skeleton className="h-11 w-full rounded-lg animate-pulse" />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-gray-900 mb-1.5">Email</label>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    className={`${inputClass} cursor-not-allowed bg-gray-50 text-gray-400`}
-                                    disabled
-                                />
+                                <Skeleton className="h-4 w-20 mb-1.5 animate-pulse" />
+                                <Skeleton className="h-11 w-full rounded-lg animate-pulse" />
                             </div>
-                            <Button type="submit" disabled={isUpdating} className="bg-heading hover:bg-heading/90 text-white rounded-lg px-6">
-                                {isUpdating ? "Updating..." : "Update Profile"}
-                            </Button>
+                            <Skeleton className="h-10 w-32 rounded-lg animate-pulse" />
                         </div>
                     </div>
-                </form>
+                ) : (
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <div className="flex items-start gap-5">
+                            {/* Avatar */}
+                            <div className="relative shrink-0">
+                                <div
+                                    className="size-14 rounded-xl bg-heading flex items-center justify-center text-white text-2xl font-bold overflow-hidden cursor-pointer"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    {avatar ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img src={avatar} alt="avatar" className="size-full object-cover" />
+                                    ) : (
+                                        (name || "").charAt(0).toUpperCase() || "A"
+                                    )}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="absolute -bottom-1.5 -right-1.5 bg-white border border-gray-200 rounded-full p-1 shadow-sm hover:bg-gray-50 transition"
+                                >
+                                    <Camera className="size-3 text-heading" />
+                                </button>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleImageChange}
+                                />
+                            </div>
+
+                            {/* Fields */}
+                            <div className="flex-1 space-y-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-900 mb-1.5">Full Name</label>
+                                    <input
+                                        type="text"
+                                        {...register("name")}
+                                        className={inputClass}
+                                        placeholder="Your name"
+                                    />
+                                    {errors.name && (
+                                        <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-900 mb-1.5">Email</label>
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        className={`${inputClass} cursor-not-allowed bg-gray-50 text-gray-400`}
+                                        disabled
+                                    />
+                                </div>
+                                <Button type="submit" disabled={isUpdating} className="bg-heading hover:bg-heading/90 text-white rounded-lg px-6">
+                                    {isUpdating ? "Updating..." : "Update Profile"}
+                                </Button>
+                            </div>
+                        </div>
+                    </form>
+                )}
             </div>
 
             {/* Notification Rules */}
@@ -162,15 +184,19 @@ export default function PersonalInformationPage() {
                         <Bell className="size-5 text-description" />
                         <span className="font-semibold text-title">Notification Rules</span>
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => setNotifications(!notifications)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer focus:outline-none ${notifications ? "bg-heading" : "bg-gray-300"}`}
-                    >
-                        <span
-                            className={`inline-block size-4 transform rounded-full bg-white shadow transition-transform ${notifications ? "translate-x-6" : "translate-x-1"}`}
-                        />
-                    </button>
+                    {isLoading ? (
+                        <Skeleton className="h-6 w-11 rounded-full animate-pulse" />
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={() => setNotifications(!notifications)}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer focus:outline-none ${notifications ? "bg-heading" : "bg-gray-300"}`}
+                        >
+                            <span
+                                className={`inline-block size-4 transform rounded-full bg-white shadow transition-transform ${notifications ? "translate-x-6" : "translate-x-1"}`}
+                            />
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

@@ -1,7 +1,7 @@
 "use client"
 
-import { Loader2 } from "lucide-react";
 import { useGetUserQuery, useUserStatsQuery } from "@/redux/features/user/user.api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 const Stats = () => {
@@ -71,14 +71,17 @@ const Stats = () => {
                     key={stat.label}
                     className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5"
                 >
-                    <p className="text-sm text-description">{stat.label}</p>
+
                     {(statsLoading || usersLoading) ? (
-                        <div className="mt-1 inline-flex items-center gap-2 text-description text-sm">
-                            <Loader2 className="size-4 animate-spin" />
-                            Loading...
+                        <div>
+                            <Skeleton className="h-4 w-20 mt-1 animate-pulse" />
+                            <Skeleton className="h-8 w-16 mt-1 animate-pulse" />
                         </div>
                     ) : (
-                        <p className={`text-2xl font-medium ${stat.color}`}>{stat.value}</p>
+                        <div>
+                            <p className="text-sm text-description">{stat.label}</p>
+                            <p className={`text-2xl font-medium ${stat.color}`}>{stat.value}</p>
+                        </div>
                     )}
                 </div>
             ))}

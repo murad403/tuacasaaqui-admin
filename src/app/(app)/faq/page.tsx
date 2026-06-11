@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useGetFaqQuery, useCreateFaqMutation, useDeleteFaqMutation, useUpdateFaqMutation } from "@/redux/features/faq/faq.api";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type FaqItem = {
   id: number;
@@ -122,14 +123,6 @@ export default function FaqPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="size-6 animate-spin text-heading" />
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -141,25 +134,49 @@ export default function FaqPage() {
   return (
     <div>
       <div className="mb-6 flex md:flex-row flex-col items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-title">{"FAQ's"} Management</h1>
-          <p className="mt-1 text-sm text-description">
-            Manage frequently asked questions with drag-and-drop ordering
-          </p>
-        </div>
+        {isLoading ? (
+          <div>
+            <Skeleton className="h-8 w-48 mb-2 animate-pulse" />
+            <Skeleton className="h-4 w-96 animate-pulse" />
+          </div>
+        ) : (
+          <div>
+            <h1 className="text-2xl font-bold text-title">{"FAQ's"} Management</h1>
+            <p className="mt-1 text-sm text-description">
+              Manage frequently asked questions with drag-and-drop ordering
+            </p>
+          </div>
+        )}
 
-        <button
-          type="button"
-          onClick={openAddModal}
-          className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-button-start via-button-end to-button-start px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 cursor-pointer"
-        >
-          <Plus className="size-4" />
-          Add FAQ
-        </button>
+        {isLoading ? (
+          <Skeleton className="h-10 w-24 rounded-lg animate-pulse" />
+        ) : (
+          <button
+            type="button"
+            onClick={openAddModal}
+            className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-button-start via-button-end to-button-start px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 cursor-pointer"
+          >
+            <Plus className="size-4" />
+            Add FAQ
+          </button>
+        )}
       </div>
 
       <div className="space-y-2 rounded-xl border border-gray-200 bg-white p-2">
-        {faqs && faqs.length > 0 ? (
+        {isLoading ? (
+          [...Array(4)].map((_, i) => (
+            <div key={i} className="rounded-lg border border-gray-200 bg-white p-4">
+              <div className="flex items-center gap-3">
+                <Skeleton className="size-4 rounded animate-pulse shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-6 w-3/4 animate-pulse" />
+                </div>
+                <Skeleton className="size-4 rounded animate-pulse shrink-0" />
+                <Skeleton className="size-4 rounded animate-pulse shrink-0" />
+              </div>
+            </div>
+          ))
+        ) : faqs && faqs.length > 0 ? (
           faqs.map((item: FaqItem) => {
             const isOpen = expandedId === item.id;
 

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, CheckCheck, SquarePen } from "lucide-react";
 import { useGetPrivacyQuery, useUpdatePrivacyMutation } from "@/redux/features/settings/settings.api";
 import { toast } from "react-toastify";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PrivacyExplanationPage() {
     const { data: pageData, isLoading } = useGetPrivacyQuery("terms_conditions");
@@ -65,7 +66,7 @@ export default function PrivacyExplanationPage() {
                     <h1 className="text-2xl md:text-3xl font-semibold text-title whitespace-nowrap">Terms And Conditions</h1>
                     <Button
                         onClick={handleEditOrSave}
-                        disabled={isSaving}
+                        disabled={isSaving || isLoading}
                         className="max-w-25"
                     >
 
@@ -79,9 +80,14 @@ export default function PrivacyExplanationPage() {
                     </Button>
                 </div>
                 {isLoading && !draftContent ? (
-                    <p className="text-sm text-description">Loading content...</p>
-                ) : null}
-                {editing ? (
+                    <div className="space-y-4">
+                        <Skeleton className="h-4 w-full animate-pulse" />
+                        <Skeleton className="h-4 w-[90%] animate-pulse" />
+                        <Skeleton className="h-4 w-[95%] animate-pulse" />
+                        <Skeleton className="h-4 w-[85%] animate-pulse" />
+                        <Skeleton className="h-4 w-[40%] animate-pulse" />
+                    </div>
+                ) : editing ? (
                     <RichTextEditor content={content} onChange={setDraftContent} />
                 ) : (
                     <div
